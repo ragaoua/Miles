@@ -38,6 +38,8 @@ dependencies:
   dartz: ^0.10.1 # Used for functional programming
   collection: ^1.18.0 # Used for various operation on collections
   equatable: ^2.0.5 # Used for comparing entity objects by value instead of reference
+  quiver: ^3.2.1 # Used specifically for
+  localized: ^2.1.1 # Used for string localization
 
 dev_dependencies:
   flutter_test:

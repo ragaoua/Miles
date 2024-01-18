@@ -1,0 +1,4 @@
+{
+  "block_name_cannot_be_empty": "Le nom du block ne peut pas être vide",
+  "block_name_is_already_used": "Ce nom de block est déjà utilisé"
+}
