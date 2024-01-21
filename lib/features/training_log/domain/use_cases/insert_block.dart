@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:quiver/strings.dart';
+import 'package:miles/features/training_log/domain/use_cases/helpers/validate_block_name.dart';
 
 import '../../../../core/failure.dart';
 
@@ -16,27 +16,14 @@ class InsertBlock {
     required String name,
     required int nbDays
   }) async {
-    if(isBlank(name)) {
-      return const Left(
-          Failure("block_name_cannot_be_empty")
-      );
-    }
+    final blockNameValidation = await validateBlockName(
+        repository: repository,
+        name: name
+    );
 
-    final blockByNameResult = await repository.getBlockByName(name);
-    return blockByNameResult.fold(
-        (failure) => Left(failure),
-        (block) async {
-          if(block != null) {
-            return const Left(Failure("block_name_is_already_used"));
-          }
-
-          final insertBlockResult = await repository.insertBlockAndDays(name, nbDays);
-
-          return insertBlockResult.fold(
-              (failure) => Left(failure),
-              (block) => Right(block)
-          );
-        }
+    return blockNameValidation.fold(
+      (failure) => Left(failure),
+      (_) => repository.insertBlockAndDays(name, nbDays)
     );
   }
 }

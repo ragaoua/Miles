@@ -3,12 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
+import 'package:miles/features/training_log/domain/use_cases/helpers/validate_block_name.dart';
 import 'package:miles/features/training_log/domain/use_cases/insert_block.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 @GenerateNiceMocks([MockSpec<Repository>()])
 import 'get_all_blocks_test.mocks.dart';
+
+class _MockRepositoryFailure extends Failure {}
 
 void main() {
   late Repository mockRepository;
@@ -25,7 +28,10 @@ void main() {
         // act
         final result = await insertBlock(name: " ", nbDays: 1);
         // assert
-        expect(result, const Left(Failure("block_name_cannot_be_empty")));
+        result.fold(
+          (failure) => expect(failure, isA<BlockNameEmptyFailure>()),
+          (_) => fail("should have returned a BlockNameEmptyFailure")
+        );
 
         verifyNoMoreInteractions(mockRepository);
       }
@@ -44,7 +50,10 @@ void main() {
         final result = await insertBlock(name: blockName, nbDays: 1);
 
         // assert
-        expect(result, const Left(Failure("block_name_is_already_used")));
+        result.fold(
+          (failure) => expect(failure, isA<BlockNameAlreadyExistsFailure>()),
+          (_) => fail("should have returned a BlockNameAlreadyExistsFailure")
+        );
 
         verify(mockRepository.getBlockByName(blockName));
         verifyNoMoreInteractions(mockRepository);
@@ -69,6 +78,31 @@ void main() {
 
         // assert
         expect(result, const Right(Block(id: blockId, name: blockName)));
+
+        verify(mockRepository.getBlockByName(blockName));
+        verify(mockRepository.insertBlockAndDays(blockName, nbDays));
+        verifyNoMoreInteractions(mockRepository);
+      }
+  );
+
+  test(
+      "should propagate repository failure when inserting a block",
+      () async {
+        const blockName = "Block 5";
+        const nbDays = 3;
+        final repositoryFailure = _MockRepositoryFailure();
+
+        // arrange
+        when(mockRepository.getBlockByName(blockName))
+            .thenAnswer((_) async => const Right(null));
+        when(mockRepository.insertBlockAndDays(blockName, nbDays))
+            .thenAnswer((_) async => Left(repositoryFailure));
+
+        // act
+        final result = await insertBlock(name: blockName, nbDays: nbDays);
+
+        // assert
+        expect(result, Left(repositoryFailure));
 
         verify(mockRepository.getBlockByName(blockName));
         verify(mockRepository.insertBlockAndDays(blockName, nbDays));
