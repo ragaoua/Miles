@@ -1,11 +1,16 @@
-class Session {
+import 'package:equatable/equatable.dart';
+
+class Session extends Equatable {
   final int id;
   final int dayId;
   final DateTime date;
 
-  Session({
+  const Session({
     this.id = 0,
     this.dayId = 0,
     required this.date
   });
+
+  @override
+  List<Object?> get props => [id, dayId, date];
 }

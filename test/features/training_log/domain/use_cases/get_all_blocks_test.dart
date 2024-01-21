@@ -7,6 +7,7 @@ import 'package:miles/features/training_log/domain/use_cases/get_all_blocks.dart
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../../../core/mock_repository_failure.dart';
 @GenerateNiceMocks([MockSpec<Repository>()])
 import 'get_all_blocks_test.mocks.dart';
 
@@ -66,15 +67,32 @@ void main() {
             for (var block in repositoryBlocks) {
               expect(
                   block.sessions,
-                  List.from(block.sessions)..sort((a, b) => b.date.compareTo(a.date))
+                  List.from(block.sessions)..sort((a, b) => a.date.compareTo(b.date))
               );
             }
           }
         );
-
-        // make sure the right repository function is called
         verify(mockRepository.getAllBlocks());
-
         verifyNoMoreInteractions(mockRepository);
-  });
+      }
+  );
+
+  test(
+      "should propagate repository failure when updating a block",
+      () async {
+        final repositoryFailure = MockRepositoryFailure();
+
+        // arrange
+        when(mockRepository.getAllBlocks())
+            .thenAnswer((_) async => Left(repositoryFailure));
+
+        // act
+        final result = await getAllBlocks();
+
+        // assert
+        expect(result, Left(repositoryFailure));
+        verify(mockRepository.getAllBlocks());
+        verifyNoMoreInteractions(mockRepository);
+      }
+  );
 }
