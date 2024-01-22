@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:miles/core/failure.dart';
 import 'package:quiver/strings.dart';
 
-import '../../repositories/repository.dart';
+import '../../../repositories/repository.dart';
 
 /// Validate the block name.
 /// If it is empty or already exists, return a Failure.

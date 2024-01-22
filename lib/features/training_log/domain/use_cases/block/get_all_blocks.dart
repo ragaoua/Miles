@@ -3,9 +3,9 @@ import 'package:dartz/dartz.dart';
 import 'package:miles/core/sorting.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 
-import '../../../../core/failure.dart';
-import '../entities/block.dart';
-import '../repositories/repository.dart';
+import '../../../../../core/failure.dart';
+import '../../entities/block.dart';
+import '../../repositories/repository.dart';
 
 /// Use Case : get all blocks with their sessions
 /// Inside each block, sessions are sorted by date.

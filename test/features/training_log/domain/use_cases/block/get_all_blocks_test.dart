@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/get_all_blocks.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../../../../core/mock_repository_failure.dart';
+import '../../../../../core/mock_repository_failure.dart';
 @GenerateNiceMocks([MockSpec<Repository>()])
 import 'get_all_blocks_test.mocks.dart';
 

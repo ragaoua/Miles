@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/helpers/validate_block_name.dart';
-import 'package:miles/features/training_log/domain/use_cases/insert_block.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/insert_block.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
