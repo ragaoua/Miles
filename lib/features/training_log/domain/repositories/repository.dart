@@ -7,6 +7,7 @@ abstract class Repository {
   Future<Either<Failure, Block>> insertBlockAndDays(String name, int nbDays);
   Future<Failure?> updateBlock(Block block);
   Future<void> deleteBlock(Block block);
+  Future<void> restoreBlock(BlockWithSessions block);
   Future<Either<Failure, List<BlockWithSessions>>> getAllBlocks();
   Future<Either<Failure, Block?>> getBlockByName(String name);
 }
