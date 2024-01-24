@@ -24,25 +24,25 @@ void main() {
     // This block should be sorted 2nd because its last session's date
     // (25/01/2021) is shared with "Block 3" but the block id is lower.
     BlockWithSessions(id: 1, name: 'Block 1', sessions: [
-      Session(date: DateTime(2021, 1, 15)),
-      Session(date: DateTime(2021, 1, 25)),
-      Session(date: DateTime(2021, 1, 20))
+      Session(id: 1, date: DateTime(2021, 1, 15)),
+      Session(id: 3, date: DateTime(2021, 1, 25)),
+      Session(id: 2, date: DateTime(2021, 1, 20))
     ]..shuffle()),
     // This block should be the 3rd block returned because its last session
     // (16/01/2021) is the oldest of all blocks (that have sessions).
     BlockWithSessions(id: 2, name: 'Block 2', sessions: [
-      Session(date: DateTime(2021, 1, 5)),
-      Session(date: DateTime(2021, 1, 8)),
-      Session(date: DateTime(2021, 1, 12)),
-      Session(date: DateTime(2021, 1, 16))
+      Session(id: 3, date: DateTime(2021, 1, 5)),
+      Session(id: 4, date: DateTime(2021, 1, 8)),
+      Session(id: 2, date: DateTime(2021, 1, 8)),
+      Session(id: 1, date: DateTime(2021, 1, 16))
     ]..shuffle()),
     // This block should be sorted 1st because its last session's date
     // (25/01/2021) is shared with "Block 1" but the block id is higher.
     BlockWithSessions(id: 3, name: 'Block 3', sessions: [
-      Session(date: DateTime(2021, 1, 20)),
-      Session(date: DateTime(2021, 1, 10)),
-      Session(date: DateTime(2021, 1, 25)),
-      Session(date: DateTime(2021, 1, 15))
+      Session(id: 3, date: DateTime(2021, 1, 20)),
+      Session(id: 1, date: DateTime(2021, 1, 10)),
+      Session(id: 2, date: DateTime(2021, 1, 25)),
+      Session(id: 4, date: DateTime(2021, 1, 10))
     ]..shuffle()),
     // This block should be sorted last because it has no sessions.
     const BlockWithSessions(id: 4, name: 'Block 4', sessions: <Session>[])
@@ -64,11 +64,15 @@ void main() {
             expect(repositoryBlocks, [ blocks[2], blocks[0], blocks[1], blocks[3] ]);
 
             // Check the sessions of each block are sorted by date
-            for (var block in repositoryBlocks) {
-              expect(
-                  block.sessions,
-                  List.from(block.sessions)..sort((a, b) => a.date.compareTo(b.date))
-              );
+            for (final block in repositoryBlocks) {
+              for(final i in Iterable.generate(block.sessions.length - 1)) {
+                expect(
+                  block.sessions[i].date.isBefore(block.sessions[i + 1].date) ||
+                    (block.sessions[i].date.isAtSameMomentAs(block.sessions[i + 1].date) &&
+                        block.sessions[i].id < block.sessions[i + 1].id),
+                  true
+                );
+              }
             }
           }
         );

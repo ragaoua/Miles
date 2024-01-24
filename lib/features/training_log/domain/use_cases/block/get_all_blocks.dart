@@ -1,14 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:miles/core/sorting.dart';
-import 'package:miles/features/training_log/domain/entities/session.dart';
 
 import '../../../../../core/failure.dart';
 import '../../entities/block.dart';
 import '../../repositories/repository.dart';
 
 /// Use Case : get all blocks with their sessions
-/// Inside each block, sessions are sorted by date.
+/// Inside each block, sessions are sorted by date then by id.
 /// The block are sorted by latest session's date descending then by id descending.
 class GetAllBlocks {
   final Repository repository;
@@ -21,13 +20,14 @@ class GetAllBlocks {
     return result.fold(
       (failure) => Left(failure),
       (blocks) => Right(
-        blocks.map((block) => BlockWithSessions<Session>(
-            id: block.id,
-            name: block.name,
-            sessions: List.from(block.sessions)..sortBy((s) => s.date) // Sort sessions by date
+        blocks.map((block) => block.copy(
+            sessions: block.sessions.sortedByList([
+              (session) => session.date,
+              (session) => session.id
+            ]).toList()
         ))
           // Sort blocks by latest session's date descending then by id descending
-          .sortedByDescending([
+          .sortedByListDescending([
             (block) => maxBy(block.sessions, (session) => session.date)?.date,
             (block) => block.id
           ]).toList()
