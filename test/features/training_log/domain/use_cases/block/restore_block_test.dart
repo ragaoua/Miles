@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
-import 'package:miles/features/training_log/domain/entities/session.dart';
+import 'package:miles/features/training_log/domain/entities/day.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/restore_block.dart';
 import 'package:mockito/annotations.dart';
@@ -19,7 +19,7 @@ void main() {
     restoreBlock = RestoreBlock(mockRepository);
   });
 
-  const block = BlockWithSessions<Session>(id: 1, name: 'Block 1', sessions: []);
+  const block = BlockWithDays<Day>(id: 1, name: 'Block 1', days: []);
 
   test(
       'should restore the block from the repository',
@@ -47,7 +47,7 @@ void main() {
             .thenAnswer((_) async => repositoryFailure);
 
         // act
-        final result = await restoreBlock(block: block);
+        final result = await restoreBlock(block);
 
         // assert
         expect(result, repositoryFailure);
