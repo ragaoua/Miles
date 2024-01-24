@@ -3,7 +3,7 @@ enum NullSort {
   last
 }
 
-extension MultiSortedByExtension<T> on Iterable<T> {
+extension SortedByListExtension<T> on Iterable<T> {
   /// Sort a list by multiple selectors and return a new list.
   /// The selectors are applied in the order they are passed.
   /// If a selector returns null, the behavior is determined by [nullSort].
@@ -42,9 +42,9 @@ extension MultiSortedByExtension<T> on Iterable<T> {
   ///
   /// See also:
   ///
-  /// * [sortedByDescending] for a descending sort.
+  /// * [sortedByListDescending] for a descending sort.
   /// * [NullSort] for the behavior of null elements.
-  Iterable<T> sortedBy(
+  Iterable<T> sortedByList(
       List<Comparable? Function(T)> selectors,
       {NullSort nullSort = NullSort.last}
   ) {
@@ -71,11 +71,11 @@ extension MultiSortedByExtension<T> on Iterable<T> {
 
   /// Sort a list by multiple selectors in descending order and return a new list.
   ///
-  /// See [sortedBy] for more details.
-  Iterable<T> sortedByDescending(
+  /// See [sortedByList] for more details.
+  Iterable<T> sortedByListDescending(
       List<Comparable? Function(T)> selectors,
       {NullSort nullSort = NullSort.last}
   ) {
-    return sortedBy(selectors, nullSort: nullSort).toList().reversed;
+    return sortedByList(selectors, nullSort: nullSort).toList().reversed;
   }
 }
