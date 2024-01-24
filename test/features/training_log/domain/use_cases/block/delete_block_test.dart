@@ -28,7 +28,7 @@ void main() {
             .thenAnswer((_) async => null);
 
         // act
-        await deleteBlock(block: block);
+        await deleteBlock(block);
 
         // assert
         verify(mockRepository.deleteBlock(block));
@@ -46,7 +46,7 @@ void main() {
             .thenAnswer((_) async => repositoryFailure);
 
         // act
-        final result = await deleteBlock(block: block);
+        final result = await deleteBlock(block);
 
         // assert
         expect(result, repositoryFailure);

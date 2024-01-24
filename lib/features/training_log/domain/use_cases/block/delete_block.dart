@@ -9,7 +9,7 @@ class DeleteBlock {
 
   DeleteBlock(this.repository);
 
-  Future<Failure?> call({required Block block}) async {
+  Future<Failure?> call(Block block) async {
     return await repository.deleteBlock(block);
   }
 }

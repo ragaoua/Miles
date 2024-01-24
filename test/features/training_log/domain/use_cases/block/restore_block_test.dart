@@ -29,7 +29,7 @@ void main() {
             .thenAnswer((_) async => null);
 
         // act
-        await restoreBlock(block: block);
+        await restoreBlock(block);
 
         // assert
         verify(mockRepository.restoreBlock(block));

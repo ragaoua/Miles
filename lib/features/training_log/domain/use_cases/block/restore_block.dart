@@ -9,7 +9,7 @@ class RestoreBlock {
 
   RestoreBlock(this.repository);
 
-  Future<Failure?> call({required BlockWithSessions block}) async {
+  Future<Failure?> call(BlockWithDays block) async {
     return await repository.restoreBlock(block);
   }
 }
