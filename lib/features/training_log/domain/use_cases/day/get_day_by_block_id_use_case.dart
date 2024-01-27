@@ -12,10 +12,10 @@ import '../../repositories/repository.dart';
 /// Each day's sessions are sorted by date then by id
 /// Each session's exercises are sorted by order then by supersetOrder
 /// Each exercise's sets are sorted by order
-class GetDaysByBlockId {
+class GetDaysByBlockIdUseCase {
   final Repository repository;
 
-  GetDaysByBlockId(this.repository);
+  GetDaysByBlockIdUseCase(this.repository);
 
   Future<Either<
       Failure,

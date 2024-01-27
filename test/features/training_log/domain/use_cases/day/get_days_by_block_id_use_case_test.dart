@@ -8,20 +8,22 @@ import 'package:miles/features/training_log/domain/entities/movement.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 import 'package:miles/features/training_log/domain/entities/set.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/day/get_day_by_block_id.dart';
+import 'package:miles/features/training_log/domain/use_cases/day/get_day_by_block_id_use_case.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
-import '../block/delete_block_test.mocks.dart';
+@GenerateNiceMocks([MockSpec<Repository>()])
+import 'get_days_by_block_id_use_case_test.mocks.dart';
 
 void main() {
   late Repository mockRepository;
-  late GetDaysByBlockId getDaysByBlockId;
+  late GetDaysByBlockIdUseCase getDaysByBlockId;
   final random = Random();
 
   setUp(() {
     mockRepository = MockRepository();
-    getDaysByBlockId = GetDaysByBlockId(mockRepository);
+    getDaysByBlockId = GetDaysByBlockIdUseCase(mockRepository);
   });
 
   const blockId = 1;

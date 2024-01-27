@@ -1,37 +1,38 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
+import 'package:miles/features/training_log/domain/entities/day.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/block/delete_block.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/restore_block_use_case.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
 @GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_test.mocks.dart';
+import 'get_all_blocks_use_case_test.mocks.dart';
 
 void main() {
   late Repository mockRepository;
-  late DeleteBlock deleteBlock;
+  late RestoreBlockUseCase restoreBlock;
 
   setUp(() {
     mockRepository = MockRepository();
-    deleteBlock = DeleteBlock(mockRepository);
+    restoreBlock = RestoreBlockUseCase(mockRepository);
   });
 
-  const block = Block(id: 1, name: 'Block 1');
+  const block = BlockWithDays<Day>(id: 1, name: 'Block 1', days: []);
 
   test(
-      'should delete the block from the repository',
+      'should restore the block from the repository',
       () async {
         // arrange
-        when(mockRepository.deleteBlock(block))
+        when(mockRepository.restoreBlock(block))
             .thenAnswer((_) async => null);
 
         // act
-        await deleteBlock(block);
+        await restoreBlock(block);
 
         // assert
-        verify(mockRepository.deleteBlock(block));
+        verify(mockRepository.restoreBlock(block));
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -42,15 +43,15 @@ void main() {
         final repositoryFailure = MockRepositoryFailure();
 
         // arrange
-        when(mockRepository.deleteBlock(block))
+        when(mockRepository.restoreBlock(block))
             .thenAnswer((_) async => repositoryFailure);
 
         // act
-        final result = await deleteBlock(block);
+        final result = await restoreBlock(block);
 
         // assert
         expect(result, repositoryFailure);
-        verify(mockRepository.deleteBlock(block));
+        verify(mockRepository.restoreBlock(block));
         verifyNoMoreInteractions(mockRepository);
       }
   );

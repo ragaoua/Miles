@@ -3,21 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks_use_case.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
 @GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_test.mocks.dart';
+import 'get_all_blocks_use_case_test.mocks.dart';
 
 void main() {
   late Repository mockRepository;
-  late GetAllBlocks getAllBlocks;
+  late GetAllBlocksUseCase getAllBlocks;
 
   setUp(() {
     mockRepository = MockRepository();
-    getAllBlocks = GetAllBlocks(mockRepository);
+    getAllBlocks = GetAllBlocksUseCase(mockRepository);
   });
 
   final blocks = [

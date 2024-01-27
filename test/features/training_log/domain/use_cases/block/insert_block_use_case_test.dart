@@ -4,51 +4,56 @@ import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
-import 'package:miles/features/training_log/domain/use_cases/block/update_block.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/insert_block_use_case.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 @GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_test.mocks.dart';
+import 'get_all_blocks_use_case_test.mocks.dart';
 
 class _MockRepositoryFailure extends Failure {}
 
 void main() {
   late Repository mockRepository;
-  late UpdateBlock updateBlock;
+  late InsertBlockUseCase insertBlock;
 
   setUp(() {
     mockRepository = MockRepository();
-    updateBlock = UpdateBlock(mockRepository);
+    insertBlock = InsertBlockUseCase(mockRepository);
   });
 
   test(
-      "should fail when updating a block with an empty name",
+      "should fail when inserting a block with an empty name",
       () async {
         // act
-        final result = await updateBlock(const Block(name: " "));
+        final result = await insertBlock(name: " ", nbDays: 1);
         // assert
-        expect(result, isA<BlockNameEmptyFailure>());
+        result.fold(
+          (failure) => expect(failure, isA<BlockNameEmptyFailure>()),
+          (_) => fail("should have returned a BlockNameEmptyFailure")
+        );
 
         verifyNoMoreInteractions(mockRepository);
       }
   );
 
   test(
-      "should fail when updating a block with a name that already exists",
+      "should fail when inserting a block with a name that already exists",
       () async {
-        const blockName = "Block 1";
-        const updatedBlock = Block(id: 2, name: blockName);
+        const blockName = "Block 3";
 
         // arrange
         when(mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(Block(id: 1, name: blockName)));
 
         // act
-        final result = await updateBlock(updatedBlock);
+        final result = await insertBlock(name: blockName, nbDays: 1);
 
         // assert
-        expect(result, isA<BlockNameAlreadyExistsFailure>());
+        result.fold(
+          (failure) => expect(failure, isA<BlockNameAlreadyExistsFailure>()),
+          (_) => fail("should have returned a BlockNameAlreadyExistsFailure")
+        );
 
         verify(mockRepository.getBlockByName(blockName));
         verifyNoMoreInteractions(mockRepository);
@@ -56,48 +61,51 @@ void main() {
   );
 
   test(
-      "should update a block with a name that does not exist yet",
-      () async {
+      "should insert a block with a name that does not exist yet",
+          () async {
+        const blockId = 5;
         const blockName = "Block 5";
-        const updatedBlock = Block(id: 5, name: blockName);
+        const nbDays = 3;
 
         // arrange
         when(mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(null));
-        when(mockRepository.updateBlock(updatedBlock))
-            .thenAnswer((_) async => null);
+        when(mockRepository.insertBlockAndDays(blockName, nbDays))
+            .thenAnswer((_) async => const Right(Block(id: blockId, name: blockName)));
 
         // act
-        final result = await updateBlock(updatedBlock);
+        final result = await insertBlock(name: blockName, nbDays: nbDays);
 
         // assert
-        expect(result, null);
+        expect(result, const Right(Block(id: blockId, name: blockName)));
+
         verify(mockRepository.getBlockByName(blockName));
-        verify(mockRepository.updateBlock(updatedBlock));
+        verify(mockRepository.insertBlockAndDays(blockName, nbDays));
         verifyNoMoreInteractions(mockRepository);
       }
   );
 
   test(
-      "should propagate repository failure when updating a block",
+      "should propagate repository failure when inserting a block",
       () async {
         const blockName = "Block 5";
-        const updatedBlock = Block(id: 5, name: blockName);
+        const nbDays = 3;
         final repositoryFailure = _MockRepositoryFailure();
 
         // arrange
         when(mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(null));
-        when(mockRepository.updateBlock(updatedBlock))
-            .thenAnswer((_) async => repositoryFailure);
+        when(mockRepository.insertBlockAndDays(blockName, nbDays))
+            .thenAnswer((_) async => Left(repositoryFailure));
 
         // act
-        final result = await updateBlock(updatedBlock);
+        final result = await insertBlock(name: blockName, nbDays: nbDays);
 
         // assert
-        expect(result, repositoryFailure);
+        expect(result, Left(repositoryFailure));
+
         verify(mockRepository.getBlockByName(blockName));
-        verify(mockRepository.updateBlock(updatedBlock));
+        verify(mockRepository.insertBlockAndDays(blockName, nbDays));
         verifyNoMoreInteractions(mockRepository);
       }
   );
