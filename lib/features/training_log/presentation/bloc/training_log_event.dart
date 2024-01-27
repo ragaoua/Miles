@@ -1,11 +1,14 @@
 part of 'training_log_bloc.dart';
 
+@immutable
 abstract class TrainingLogEvent extends Equatable {
   const TrainingLogEvent();
 
   @override
   List<Object> get props => [];
 }
+
+class LoadBlocks extends TrainingLogEvent {}
 
 class ShowNewBlockSheet extends TrainingLogEvent {}
 

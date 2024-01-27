@@ -1,18 +1,30 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks.dart';
 
 import '../../domain/entities/block.dart';
-import '../../domain/repositories/repository.dart';
 
 part 'training_log_event.dart';
 part 'training_log_state.dart';
 
 class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
-  final Repository _repository;
+  final GetAllBlocks getAllBlocks;
 
-  TrainingLogBloc(this._repository) : super(Loading());
+  TrainingLogBloc(this.getAllBlocks) : super(Loading()) {
+    on<LoadBlocks>(_onLoadBlocks);
 
-  Stream<TrainingLogState> mapEventToState(TrainingLogEvent event) async* {
-    throw UnimplementedError();
+    add(LoadBlocks());
+  }
+
+  Future<void> _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) async {
+    emit(Loading());
+    final getAllBlocksEither = await getAllBlocks();
+    emit(
+        getAllBlocksEither.fold(
+          (failure) => Error(),
+          (blocks) => Loaded(blocks: blocks)
+        )
+    );
   }
 }

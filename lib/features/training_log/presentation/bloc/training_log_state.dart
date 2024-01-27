@@ -1,5 +1,6 @@
 part of 'training_log_bloc.dart';
 
+@immutable
 abstract class TrainingLogState extends Equatable {
   const TrainingLogState();
 
@@ -13,8 +14,10 @@ class Loaded extends TrainingLogState {
   final List<BlockWithSessions> blocks;
 
   const Loaded({required this.blocks});
-  @override
-  List<Object> get props => [blocks];
+}
+
+class Error extends TrainingLogState {
+  // TODO: specify error
 }
 
 class ShowingNewBlockSheet extends TrainingLogState {
@@ -29,6 +32,7 @@ class ShowingNewBlockSheet extends TrainingLogState {
     required this.areMicroCycleSettingsShown,
     required this.nbDaysPerMicroCycle,
   });
+
   @override
   List<Object> get props => [
     blockName,
