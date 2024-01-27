@@ -5,11 +5,9 @@ import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/insert_block_use_case.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-@GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_use_case_test.mocks.dart';
+import '../../repository/mock_repository.dart';
 
 class _MockRepositoryFailure extends Failure {}
 
@@ -43,7 +41,7 @@ void main() {
         const blockName = "Block 3";
 
         // arrange
-        when(mockRepository.getBlockByName(blockName))
+        when(() => mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(Block(id: 1, name: blockName)));
 
         // act
@@ -55,7 +53,7 @@ void main() {
           (_) => fail("should have returned a BlockNameAlreadyExistsFailure")
         );
 
-        verify(mockRepository.getBlockByName(blockName));
+        verify(() => mockRepository.getBlockByName(blockName));
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -68,9 +66,9 @@ void main() {
         const nbDays = 3;
 
         // arrange
-        when(mockRepository.getBlockByName(blockName))
+        when(() => mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(null));
-        when(mockRepository.insertBlockAndDays(blockName, nbDays))
+        when(() => mockRepository.insertBlockAndDays(blockName, nbDays))
             .thenAnswer((_) async => const Right(Block(id: blockId, name: blockName)));
 
         // act
@@ -79,8 +77,8 @@ void main() {
         // assert
         expect(result, const Right(Block(id: blockId, name: blockName)));
 
-        verify(mockRepository.getBlockByName(blockName));
-        verify(mockRepository.insertBlockAndDays(blockName, nbDays));
+        verify(() => mockRepository.getBlockByName(blockName));
+        verify(() => mockRepository.insertBlockAndDays(blockName, nbDays));
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -93,9 +91,9 @@ void main() {
         final repositoryFailure = _MockRepositoryFailure();
 
         // arrange
-        when(mockRepository.getBlockByName(blockName))
+        when(() => mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(null));
-        when(mockRepository.insertBlockAndDays(blockName, nbDays))
+        when(() => mockRepository.insertBlockAndDays(blockName, nbDays))
             .thenAnswer((_) async => Left(repositoryFailure));
 
         // act
@@ -104,8 +102,8 @@ void main() {
         // assert
         expect(result, Left(repositoryFailure));
 
-        verify(mockRepository.getBlockByName(blockName));
-        verify(mockRepository.insertBlockAndDays(blockName, nbDays));
+        verify(() => mockRepository.getBlockByName(blockName));
+        verify(() => mockRepository.insertBlockAndDays(blockName, nbDays));
         verifyNoMoreInteractions(mockRepository);
       }
   );

@@ -2,12 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/delete_block_use_case.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
-@GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_use_case_test.mocks.dart';
+import '../../repository/mock_repository.dart';
 
 void main() {
   late Repository mockRepository;
@@ -24,14 +22,14 @@ void main() {
       'should delete the block from the repository',
       () async {
         // arrange
-        when(mockRepository.deleteBlock(block))
+        when(() => mockRepository.deleteBlock(block))
             .thenAnswer((_) async => null);
 
         // act
         await deleteBlock(block);
 
         // assert
-        verify(mockRepository.deleteBlock(block));
+        verify(() => mockRepository.deleteBlock(block));
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -42,7 +40,7 @@ void main() {
         final repositoryFailure = MockRepositoryFailure();
 
         // arrange
-        when(mockRepository.deleteBlock(block))
+        when(() => mockRepository.deleteBlock(block))
             .thenAnswer((_) async => repositoryFailure);
 
         // act
@@ -50,7 +48,7 @@ void main() {
 
         // assert
         expect(result, repositoryFailure);
-        verify(mockRepository.deleteBlock(block));
+        verify(() => mockRepository.deleteBlock(block));
         verifyNoMoreInteractions(mockRepository);
       }
   );

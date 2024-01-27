@@ -9,12 +9,10 @@ import 'package:miles/features/training_log/domain/entities/session.dart';
 import 'package:miles/features/training_log/domain/entities/set.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/day/get_day_by_block_id_use_case.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
-@GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_days_by_block_id_use_case_test.mocks.dart';
+import '../../repository/mock_repository.dart';
 
 void main() {
   late Repository mockRepository;
@@ -66,7 +64,7 @@ void main() {
       "should get all blocks from the repository sorted by latest session's date descending then by id descending",
       () async {
         // arrange
-        when(mockRepository.getDaysByBlockId(blockId))
+        when(() => mockRepository.getDaysByBlockId(blockId))
             .thenAnswer((_) async => Right(days));
 
         // act
@@ -115,7 +113,7 @@ void main() {
             }
           }
         );
-        verify(mockRepository.getDaysByBlockId(blockId));
+        verify(() => mockRepository.getDaysByBlockId(blockId));
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -126,7 +124,7 @@ void main() {
         final repositoryFailure = MockRepositoryFailure();
 
         // arrange
-        when(mockRepository.getDaysByBlockId(blockId))
+        when(() => mockRepository.getDaysByBlockId(blockId))
             .thenAnswer((_) async => Left(repositoryFailure));
 
         // act
@@ -134,7 +132,7 @@ void main() {
 
         // assert
         expect(result, Left(repositoryFailure));
-        verify(mockRepository.getDaysByBlockId(blockId));
+        verify(() => mockRepository.getDaysByBlockId(blockId));
         verifyNoMoreInteractions(mockRepository);
       }
   );

@@ -4,12 +4,10 @@ import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks_use_case.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../../core/mock_repository_failure.dart';
-@GenerateNiceMocks([MockSpec<Repository>()])
-import 'get_all_blocks_use_case_test.mocks.dart';
+import '../../repository/mock_repository.dart';
 
 void main() {
   late Repository mockRepository;
@@ -52,7 +50,7 @@ void main() {
       "should get all blocks from the repository sorted by latest session's date descending then by id descending",
       () async {
         // arrange
-        when(mockRepository.getAllBlocks())
+        when(() => mockRepository.getAllBlocks())
             .thenAnswer((_) async => Right(blocks));
         // act
         final result = await getAllBlocks();
@@ -76,7 +74,7 @@ void main() {
             }
           }
         );
-        verify(mockRepository.getAllBlocks());
+        verify(() => mockRepository.getAllBlocks());
         verifyNoMoreInteractions(mockRepository);
       }
   );
@@ -87,7 +85,7 @@ void main() {
         final repositoryFailure = MockRepositoryFailure();
 
         // arrange
-        when(mockRepository.getAllBlocks())
+        when(() => mockRepository.getAllBlocks())
             .thenAnswer((_) async => Left(repositoryFailure));
 
         // act
@@ -95,7 +93,7 @@ void main() {
 
         // assert
         expect(result, Left(repositoryFailure));
-        verify(mockRepository.getAllBlocks());
+        verify(() => mockRepository.getAllBlocks());
         verifyNoMoreInteractions(mockRepository);
       }
   );
