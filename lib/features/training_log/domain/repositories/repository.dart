@@ -11,7 +11,7 @@ abstract class Repository {
   Future<Failure?> updateBlock(Block block);
   Future<Failure?> deleteBlock(Block block);
   Future<Failure?> restoreBlock(BlockWithDays block);
-  Future<Either<Failure, List<BlockWithSessions>>> getAllBlocks();
+  Stream<Either<Failure, List<BlockWithSessions>>> getAllBlocks();
   Future<Either<Failure, Block?>> getBlockByName(String name);
 
   Future<Either<

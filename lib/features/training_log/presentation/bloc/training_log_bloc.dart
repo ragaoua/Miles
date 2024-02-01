@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +19,8 @@ part 'training_log_use_cases.dart';
 class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
   final TrainingLogUseCases useCases;
 
+  StreamSubscription? _blocksSubscription ;
+
   TrainingLogBloc({required this.useCases}) : super(Loading()) {
     on<LoadBlocks>(_onLoadBlocks);
 
@@ -25,12 +29,20 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
   Future<void> _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) async {
     emit(Loading());
-    final getAllBlocksEither = await useCases.getAllBlocks.call();
-    emit(
-        getAllBlocksEither.fold(
-          (failure) => Error(),
-          (blocks) => Loaded(blocks: blocks)
-        )
+
+    _blocksSubscription?.cancel();
+    _blocksSubscription = useCases.getAllBlocks().listen(
+        (getAllBlocksEither) => getAllBlocksEither.fold(
+            (failure) => emit(Error()), // TODO : handle error
+            (blocks) => emit(Loaded(blocks: blocks))
+        ),
+        onError: (_) => emit(Error()) // TODO : handle error
     );
+  }
+
+  @override
+  Future<void> close() {
+    _blocksSubscription?.cancel(); // Cancel the subscription
+    return super.close();
   }
 }

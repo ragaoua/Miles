@@ -18,42 +18,43 @@ void main() {
     getAllBlocks = GetAllBlocksUseCase(mockRepository);
   });
 
-  final blocks = [
-    // This block should be sorted 2nd because its last session's date
-    // (25/01/2021) is shared with "Block 3" but the block id is lower.
-    BlockWithSessions(id: 1, name: 'Block 1', sessions: [
-      Session(id: 1, date: DateTime(2021, 1, 15)),
-      Session(id: 3, date: DateTime(2021, 1, 25)),
-      Session(id: 2, date: DateTime(2021, 1, 20))
-    ]..shuffle()),
-    // This block should be the 3rd block returned because its last session
-    // (16/01/2021) is the oldest of all blocks (that have sessions).
-    BlockWithSessions(id: 2, name: 'Block 2', sessions: [
-      Session(id: 3, date: DateTime(2021, 1, 5)),
-      Session(id: 4, date: DateTime(2021, 1, 8)),
-      Session(id: 2, date: DateTime(2021, 1, 8)),
-      Session(id: 1, date: DateTime(2021, 1, 16))
-    ]..shuffle()),
-    // This block should be sorted 1st because its last session's date
-    // (25/01/2021) is shared with "Block 1" but the block id is higher.
-    BlockWithSessions(id: 3, name: 'Block 3', sessions: [
-      Session(id: 3, date: DateTime(2021, 1, 20)),
-      Session(id: 1, date: DateTime(2021, 1, 10)),
-      Session(id: 2, date: DateTime(2021, 1, 25)),
-      Session(id: 4, date: DateTime(2021, 1, 10))
-    ]..shuffle()),
-    // This block should be sorted last because it has no sessions.
-    const BlockWithSessions(id: 4, name: 'Block 4', sessions: <Session>[])
-  ];
-
   test(
       "should get all blocks from the repository sorted by latest session's date descending then by id descending",
       () async {
         // arrange
+        final blocks = [
+          // This block should be sorted 2nd because its last session's date
+          // (25/01/2021) is shared with "Block 3" but the block id is lower.
+          BlockWithSessions(id: 1, name: 'Block 1', sessions: [
+            Session(id: 1, date: DateTime(2021, 1, 15)),
+            Session(id: 3, date: DateTime(2021, 1, 25)),
+            Session(id: 2, date: DateTime(2021, 1, 20))
+          ]..shuffle()),
+          // This block should be the 3rd block returned because its last session
+          // (16/01/2021) is the oldest of all blocks (that have sessions).
+          BlockWithSessions(id: 2, name: 'Block 2', sessions: [
+            Session(id: 3, date: DateTime(2021, 1, 5)),
+            Session(id: 4, date: DateTime(2021, 1, 8)),
+            Session(id: 2, date: DateTime(2021, 1, 8)),
+            Session(id: 1, date: DateTime(2021, 1, 16))
+          ]..shuffle()),
+          // This block should be sorted 1st because its last session's date
+          // (25/01/2021) is shared with "Block 1" but the block id is higher.
+          BlockWithSessions(id: 3, name: 'Block 3', sessions: [
+            Session(id: 3, date: DateTime(2021, 1, 20)),
+            Session(id: 1, date: DateTime(2021, 1, 10)),
+            Session(id: 2, date: DateTime(2021, 1, 25)),
+            Session(id: 4, date: DateTime(2021, 1, 10))
+          ]..shuffle()),
+          // This block should be sorted last because it has no sessions.
+          const BlockWithSessions(id: 4, name: 'Block 4', sessions: <Session>[])
+        ];
         when(() => mockRepository.getAllBlocks())
-            .thenAnswer((_) async => Right(blocks));
+            .thenAnswer((_) => Stream.value(Right(blocks)));
+
         // act
-        final result = await getAllBlocks();
+        final result = await getAllBlocks().first;
+
         // assert
         result.fold(
           (failure) => fail('Should not return a failure'),
@@ -86,10 +87,10 @@ void main() {
 
         // arrange
         when(() => mockRepository.getAllBlocks())
-            .thenAnswer((_) async => Left(repositoryFailure));
+            .thenAnswer((_) => Stream.value(Left(repositoryFailure)));
 
         // act
-        final result = await getAllBlocks();
+        final result = await getAllBlocks().first;
 
         // assert
         expect(result, Left(repositoryFailure));

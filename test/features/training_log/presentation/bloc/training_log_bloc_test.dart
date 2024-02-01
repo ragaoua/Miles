@@ -1,3 +1,4 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
@@ -25,41 +26,31 @@ void main() {
     );
   });
 
-  test(
-      'initial state should be Loading then Loaded',
-      () {
-        // arrange
-        const blocks = [
-          BlockWithSessions(id: 1, name: 'Block 1', sessions: <Session>[]),
-          BlockWithSessions(id: 2, name: 'Block 2', sessions: <Session>[]),
-          BlockWithSessions(id: 3, name: 'Block 3', sessions: <Session>[]),
-        ];
-        when(() => useCases.getAllBlocks())
-            .thenAnswer((_) async => const Right(blocks));
+  const blocks = [
+    BlockWithSessions(id: 1, name: 'Block 1', sessions: <Session>[]),
+    BlockWithSessions(id: 2, name: 'Block 2', sessions: <Session>[]),
+    BlockWithSessions(id: 3, name: 'Block 3', sessions: <Session>[]),
+  ];
 
-        // act
-        final bloc = TrainingLogBloc(useCases: useCases);
-
-        // assert
-        final expected = [ Loading(), const Loaded(blocks: blocks) ];
-        expect(bloc.stream, emitsInOrder(expected));
-      }
+  blocTest<TrainingLogBloc, TrainingLogState>(
+    'initial state should be Loading then Loaded',
+    build: () {
+      when(() => useCases.getAllBlocks())
+          .thenAnswer((_) => Stream.value(const Right(blocks)));
+      return TrainingLogBloc(useCases: useCases);
+    },
+    expect: () => [Loading(), const Loaded(blocks: blocks)]
   );
 
-  test(
+  blocTest<TrainingLogBloc, TrainingLogState>(
       'initial state should be Loading then Error when repository fails',
-      () {
-        // arrange
+      build: () {
         final failure = MockRepositoryFailure();
         when(() => useCases.getAllBlocks())
-            .thenAnswer((_) async => Left(failure));
-        // act
-        final bloc = TrainingLogBloc(useCases: useCases);
-
-        // assert
-        final expected = [ Loading(), Error() ];
-        expect(bloc.stream, emitsInOrder(expected));
-      }
+            .thenAnswer((_) => Stream.value(Left(failure)));
+        return TrainingLogBloc(useCases: useCases);
+      },
+      expect: () => [Loading(), Error()]
   );
 
 }

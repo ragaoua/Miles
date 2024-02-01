@@ -14,23 +14,25 @@ class GetAllBlocksUseCase {
 
   GetAllBlocksUseCase(this.repository);
 
-  Future<Either<Failure, List<BlockWithSessions>>> call() async {
-    final result = await repository.getAllBlocks();
+  Stream<Either<Failure, List<BlockWithSessions>>> call() {
+    final stream = repository.getAllBlocks();
 
-    return result.fold(
-      (failure) => Left(failure),
-      (blocks) => Right(
-        blocks.map((block) => block.copy(
-            sessions: block.sessions.sortedByList([
-              (session) => session.date,
-              (session) => session.id
-            ]).toList()
-        ))
-          // Sort blocks by latest session's date descending then by id descending
-          .sortedByListDescending([
-            (block) => maxBy(block.sessions, (session) => session.date)?.date,
-            (block) => block.id
-          ]).toList()
+    return stream.map((either) =>
+      either.fold(
+          (failure) => Left(failure),
+          (blocks) => Right(
+              blocks.map((block) => block.copy(
+                  sessions: block.sessions.sortedByList([
+                        (session) => session.date,
+                        (session) => session.id
+                  ]).toList()
+              ))
+              // Sort blocks by latest session's date descending then by id descending
+                  .sortedByListDescending([
+                    (block) => maxBy(block.sessions, (session) => session.date)?.date,
+                    (block) => block.id
+                  ]).toList()
+          )
       )
     );
   }
