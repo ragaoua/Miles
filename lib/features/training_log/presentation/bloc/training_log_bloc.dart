@@ -23,9 +23,11 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
   TrainingLogBloc({required this.useCases}) : super(Loading()) {
     on<LoadBlocks>(_onLoadBlocks);
+    on<AddBlock>(_onAddBlock);
 
     add(LoadBlocks());
   }
+
 
   Future<void> _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) async {
     emit(Loading());
@@ -37,6 +39,19 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
             (blocks) => emit(Loaded(blocks: blocks))
         ),
         onError: (_) => emit(Error()) // TODO : handle error
+    );
+  }
+
+  Future<void> _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
+    final insertBlockEither = await useCases.insertBlock(
+        name: event.blockName,
+        nbDays: event.nbDays
+    );
+    insertBlockEither.fold(
+        (failure) => emit(Error()),
+        (block) {
+          // TODO : navigate to this block's page
+        }
     );
   }
 

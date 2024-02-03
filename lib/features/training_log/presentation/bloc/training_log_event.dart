@@ -34,10 +34,14 @@ class ToggleMicroCycleSettings extends TrainingLogEvent {}
 
 class AddBlock extends TrainingLogEvent {
   final String blockName;
+  final int nbDays;
 
-  const AddBlock({required this.blockName});
+  const AddBlock({
+    required this.blockName,
+    required this.nbDays
+  });
   @override
-  List<Object> get props => [blockName];
+  List<Object> get props => [blockName, nbDays];
 }
 
 class DeleteBlock extends TrainingLogEvent {
