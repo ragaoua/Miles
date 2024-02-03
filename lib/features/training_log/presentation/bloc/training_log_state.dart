@@ -14,6 +14,8 @@ class Loaded extends TrainingLogState {
   final List<BlockWithSessions> blocks;
 
   const Loaded({required this.blocks});
+  @override
+  List<Object> get props => [blocks];
 }
 
 class Error extends TrainingLogState {
