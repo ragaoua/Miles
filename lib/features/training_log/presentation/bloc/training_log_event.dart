@@ -51,3 +51,13 @@ class DeleteBlock extends TrainingLogEvent {
   @override
   List<Object> get props => [block];
 }
+
+class UpdateBlocks extends TrainingLogEvent {
+  final List<BlockWithSessions> blocks;
+
+  const UpdateBlocks({required this.blocks});
+  @override
+  List<Object> get props => [blocks];
+}
+
+class ShowError extends TrainingLogEvent {}

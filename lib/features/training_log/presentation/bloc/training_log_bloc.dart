@@ -24,22 +24,31 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
   TrainingLogBloc({required this.useCases}) : super(Loading()) {
     on<LoadBlocks>(_onLoadBlocks);
     on<AddBlock>(_onAddBlock);
+    on<UpdateBlocks>(_onUpdateBlocks);
+    on<ShowError>(_onShowError);
 
     add(LoadBlocks());
   }
 
-
-  Future<void> _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) async {
+  void _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) {
     emit(Loading());
 
     _blocksSubscription?.cancel();
     _blocksSubscription = useCases.getAllBlocks().listen(
         (getAllBlocksEither) => getAllBlocksEither.fold(
-            (failure) => emit(Error()), // TODO : handle error
-            (blocks) => emit(Loaded(blocks: blocks))
+            (failure) => add(ShowError()), // TODO : handle error
+            (blocks) => add(UpdateBlocks(blocks: blocks))
         ),
         onError: (_) => emit(Error()) // TODO : handle error
     );
+  }
+
+  void _onUpdateBlocks(UpdateBlocks event, Emitter<TrainingLogState> emit) {
+    emit(Loaded(blocks: event.blocks));
+  }
+
+  void _onShowError(ShowError event, Emitter<TrainingLogState> emit) {
+    emit(Error()); // TODO : handle error
   }
 
   Future<void> _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
