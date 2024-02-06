@@ -96,6 +96,18 @@ void main() {
               act: (bloc) => bloc.add(AddBlock(blockName: newBlock.name, nbDays: 1)),
               expect: () => [ Loading(), const Loaded(blocks: blocks), const Loaded(blocks: [...blocks, newBlock]) ]
           );
+
+          blocTest<TrainingLogBloc, TrainingLogState>(
+              'Error state should be emitted when a new block fails to be added',
+              build: () {
+                  when(() => useCases.insertBlock(name: any(named: 'name'), nbDays: any(named: 'nbDays')))
+                      .thenAnswer((_) async => Left(MockRepositoryFailure()));
+
+                    return TrainingLogBloc(useCases: useCases);
+              },
+              act: (bloc) => bloc.add(AddBlock(blockName: newBlock.name, nbDays: 1)),
+              expect: () => [ Loading(), const Loaded(blocks: blocks), Error() ]
+          );
   });
 
 }

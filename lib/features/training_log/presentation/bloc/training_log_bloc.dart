@@ -39,7 +39,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
             (failure) => add(ShowError()), // TODO : handle error
             (blocks) => add(UpdateBlocks(blocks: blocks))
         ),
-        onError: (_) => emit(Error()) // TODO : handle error
+        onError: (_) => add(ShowError()) // TODO : handle error
     );
   }
 
@@ -57,7 +57,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
         nbDays: event.nbDays
     );
     insertBlockEither.fold(
-        (failure) => emit(Error()),
+        (failure) => add(ShowError()), // TODO : handle error
         (block) {
           // TODO : navigate to this block's page
         }
