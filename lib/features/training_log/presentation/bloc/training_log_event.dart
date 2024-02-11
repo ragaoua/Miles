@@ -60,4 +60,10 @@ class UpdateBlocks extends TrainingLogEvent {
   List<Object> get props => [blocks];
 }
 
-class ShowError extends TrainingLogEvent {}
+class ShowError extends TrainingLogEvent {
+  final String message;
+
+  const ShowError({this.message=""});
+  @override
+  List<Object> get props => [message];
+}

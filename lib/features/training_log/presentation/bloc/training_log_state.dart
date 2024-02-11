@@ -20,6 +20,10 @@ class Loaded extends TrainingLogState {
 
 class Error extends TrainingLogState {
   // TODO: specify error
+  final String message;
+  const Error({this.message=""});
+  @override
+  List<Object> get props => [message];
 }
 
 class ShowingNewBlockSheet extends TrainingLogState {

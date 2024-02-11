@@ -48,7 +48,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
   }
 
   void _onShowError(ShowError event, Emitter<TrainingLogState> emit) {
-    emit(Error()); // TODO : handle error
+    emit(Error(message: event.message)); // TODO : handle error
   }
 
   Future<void> _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
