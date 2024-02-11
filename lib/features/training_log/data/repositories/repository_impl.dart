@@ -16,7 +16,7 @@ class RepositoryImpl implements Repository {
   RepositoryImpl({required this.db});
 
   @override
-  Future<Either<Failure, Block>> insertBlockAndDays(String name, int nbDays) {
+  Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays) {
     try {
       return db.transaction(() async =>
         await db.into(db.blockDAO).insert(BlockDAOCompanion(
@@ -29,7 +29,7 @@ class RepositoryImpl implements Repository {
             ));
           }
 
-          return Right(Block(id: blockId, name: name));
+          return Right(blockId);
         })
       );
     } catch (e) {

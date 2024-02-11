@@ -7,7 +7,7 @@ import '../../../../core/failure.dart';
 import '../entities/block.dart';
 
 abstract class Repository {
-  Future<Either<Failure, Block>> insertBlockAndDays(String name, int nbDays);
+  Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays);
   Future<Failure?> updateBlock(Block block);
   Future<Failure?> deleteBlock(Block block);
   Future<Failure?> restoreBlock(BlockWithDays block);

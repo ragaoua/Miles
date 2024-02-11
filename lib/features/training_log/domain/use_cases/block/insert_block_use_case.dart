@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
 
@@ -12,7 +11,7 @@ class InsertBlockUseCase {
 
   InsertBlockUseCase(this.repository);
 
-  Future<Either<Failure, Block>> call({
+  Future<Either<Failure, int>> call({
     required String name,
     required int nbDays
   }) async {

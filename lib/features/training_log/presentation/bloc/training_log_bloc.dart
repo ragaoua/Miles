@@ -36,10 +36,10 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
     _blocksSubscription?.cancel();
     _blocksSubscription = useCases.getAllBlocks().listen(
         (getAllBlocksEither) => getAllBlocksEither.fold(
-            (failure) => add(ShowError()), // TODO : handle error
+            (failure) => add(const ShowError()), // TODO : handle error
             (blocks) => add(UpdateBlocks(blocks: blocks))
         ),
-        onError: (_) => add(ShowError()) // TODO : handle error
+        onError: (_) => add(const ShowError()) // TODO : handle error
     );
   }
 
@@ -57,10 +57,8 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
         nbDays: event.nbDays
     );
     insertBlockEither.fold(
-        (failure) => add(ShowError()), // TODO : handle error
-        (block) {
-          // TODO : navigate to this block's page
-        }
+        (failure) => add(const ShowError()), // TODO : handle error
+        (blockId) {} // TODO : navigate to this block's page
     );
   }
 

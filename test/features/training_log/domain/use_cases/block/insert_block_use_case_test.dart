@@ -69,13 +69,13 @@ void main() {
         when(() => mockRepository.getBlockByName(blockName))
             .thenAnswer((_) async => const Right(null));
         when(() => mockRepository.insertBlockAndDays(blockName, nbDays))
-            .thenAnswer((_) async => const Right(Block(id: blockId, name: blockName)));
+            .thenAnswer((_) async => const Right(blockId));
 
         // act
         final result = await insertBlock(name: blockName, nbDays: nbDays);
 
         // assert
-        expect(result, const Right(Block(id: blockId, name: blockName)));
+        expect(result, const Right(blockId));
 
         verify(() => mockRepository.getBlockByName(blockName));
         verify(() => mockRepository.insertBlockAndDays(blockName, nbDays));

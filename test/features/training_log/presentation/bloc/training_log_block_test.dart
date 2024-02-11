@@ -88,7 +88,7 @@ void main() {
                   when(() => useCases.insertBlock(name: any(named: 'name'), nbDays: any(named: 'nbDays')))
                       .thenAnswer((_) async {
                           blocksStreamController.add(const Right([...blocks, newBlock]));
-                          return const Right(newBlock);
+                          return Right(newBlock.id);
                       });
 
                   return TrainingLogBloc(useCases: useCases);
