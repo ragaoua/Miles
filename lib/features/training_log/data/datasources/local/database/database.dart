@@ -29,6 +29,59 @@ class Database extends _$Database {
 
   @override
   int get schemaVersion => 1;
+
+  Stream<List<BlockWithSessions>> getAllBlocks() =>
+      select(blockDAO)
+          .join([
+            leftOuterJoin(dayDAO, dayDAO.blockId.equalsExp(blockDAO.id)),
+            leftOuterJoin(sessionDAO, sessionDAO.dayId.equalsExp(dayDAO.id))
+          ])
+          .watch()
+          .map(_mapRowsToBlockWithSessionsList);
+
+  List<BlockWithSessions> _mapRowsToBlockWithSessionsList(List<TypedResult> rows) {
+    final Map<Block, List<Session>> blockSessionsMap = {};
+    for (final row in rows) {
+      final block = row.readTable(blockDAO);
+      final session = row.readTableOrNull(sessionDAO);
+      if (session != null) {
+        blockSessionsMap.putIfAbsent(block, () => []).add(session);
+      } else {
+        blockSessionsMap.putIfAbsent(block, () => []);
+      }
+    }
+
+    return blockSessionsMap.entries.map((entries) {
+      final block = entries.key;
+      final sessions = entries.value;
+      return BlockWithSessions(
+          id: block.id,
+          name: block.name,
+          sessions: sessions
+      );
+    }).toList();
+  }
+
+  Future<Block?> getBlockByName(String name) =>
+      (select(blockDAO)
+        ..where((block) => block.name.equals(name))
+      ).getSingleOrNull();
+
+  Future<int> insertBlockAndDays(String name, int nbDays) =>
+    transaction(() =>
+      into(blockDAO).insert(
+          BlockDAOCompanion(name: Value(name))
+      ).then((blockId) {
+        for (var dayOrder = 1; dayOrder <= nbDays; dayOrder++) {
+          into(dayDAO).insert(DayDAOCompanion(
+              blockId: Value(blockId),
+              order: Value(dayOrder)
+          ));
+        }
+
+        return blockId;
+      })
+    );
 }
 
 LazyDatabase openConnection() =>

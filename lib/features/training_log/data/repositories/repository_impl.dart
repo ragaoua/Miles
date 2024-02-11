@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:drift/drift.dart';
 import 'package:miles/features/training_log/domain/entities/day.dart';
 import 'package:miles/features/training_log/domain/entities/exercise.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
@@ -18,20 +17,8 @@ class RepositoryImpl implements Repository {
   @override
   Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays) {
     try {
-      return db.transaction(() async =>
-        await db.into(db.blockDAO).insert(BlockDAOCompanion(
-            name: Value(name)
-        )).then((blockId) {
-          for (var dayOrder = 1; dayOrder <= nbDays; dayOrder++) {
-            db.into(db.dayDAO).insert(DayDAOCompanion(
-                blockId: Value(blockId),
-                order: Value(dayOrder)
-            ));
-          }
-
-          return Right(blockId);
-        })
-      );
+      return db.insertBlockAndDays(name, nbDays)
+          .then(Right.new);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
@@ -58,50 +45,18 @@ class RepositoryImpl implements Repository {
   @override
   Stream<Either<Failure, List<BlockWithSessions>>> getAllBlocks() {
     try {
-      return db.select(db.blockDAO)
-          .join([
-            leftOuterJoin(db.dayDAO, db.dayDAO.blockId.equalsExp(db.blockDAO.id)),
-            leftOuterJoin(db.sessionDAO, db.sessionDAO.dayId.equalsExp(db.dayDAO.id))
-          ])
-          .watch()
-          .map((rows) => Right(
-              _mapRowsToBlockWithSessionsList(rows)
-          ));
+      return db.getAllBlocks()
+          .map(Right.new);
     } catch (e) {
       return Stream.value(Left(DatabaseFailure(e.toString())));
     }
   }
 
-  List<BlockWithSessions> _mapRowsToBlockWithSessionsList(List<TypedResult> rows) {
-    final Map<Block, List<Session>> blockSessionsMap = {};
-    for (final row in rows) {
-      final block = row.readTable(db.blockDAO);
-      final session = row.readTableOrNull(db.sessionDAO);
-      if (session != null) {
-        blockSessionsMap.putIfAbsent(block, () => []).add(session);
-      } else {
-        blockSessionsMap.putIfAbsent(block, () => []);
-      }
-    }
-
-    return blockSessionsMap.entries.map((entries) {
-      final block = entries.key;
-      final sessions = entries.value;
-      return BlockWithSessions(
-          id: block.id,
-          name: block.name,
-          sessions: sessions
-      );
-    }).toList();
-  }
-
   @override
   Future<Either<Failure, Block?>> getBlockByName(String name) {
     try {
-      return (
-          db.select(db.blockDAO)
-            ..where((block) => block.name.equals(name))
-      ).getSingleOrNull().then((block) => Right(block));
+      return db.getBlockByName(name)
+          .then(Right.new);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
