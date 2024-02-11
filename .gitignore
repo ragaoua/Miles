@@ -44,3 +44,4 @@ app.*.map.json
 
 # build-runner files
 *.mocks.dart
+*.g.dart
