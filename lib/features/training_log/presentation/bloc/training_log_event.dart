@@ -10,10 +10,6 @@ abstract class TrainingLogEvent extends Equatable {
 
 class LoadBlocks extends TrainingLogEvent {}
 
-class ShowNewBlockSheet extends TrainingLogEvent {}
-
-class HideNewBlockSheet extends TrainingLogEvent {}
-
 // class UpdateNewBlockName extends TrainingLogEvent {
 //   final String newBlockName;
 //
