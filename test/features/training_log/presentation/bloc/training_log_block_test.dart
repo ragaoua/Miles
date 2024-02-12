@@ -37,43 +37,59 @@ void main() {
     BlockWithSessions(id: 3, name: 'Block 3', sessions: <Session>[]),
   ];
 
-  blocTest<TrainingLogBloc, TrainingLogState>(
-      'initial states should be Loading then Loaded',
-      build: () {
-          when(() => useCases.getAllBlocks())
-              .thenAnswer((_) => Stream.value(const Right(blocks)));
-
-          return TrainingLogBloc(useCases: useCases);
-      },
-      expect: () => [ const Loading(), const Loaded(blocks: blocks) ]
-  );
-
-  blocTest<TrainingLogBloc, TrainingLogState>(
-      'Error state should be emitted when repository fails',
-      build: () {
-        when(() => useCases.getAllBlocks())
-            .thenAnswer((_) => Stream.value(Left(MockRepositoryFailure())));
-
-        return TrainingLogBloc(useCases: useCases);
-      },
-      expect: () => [ const Loading(), const Error() ]
-  );
-
-  blocTest<TrainingLogBloc, TrainingLogState>(
-      'Error state should be emitted when stream fails',
-      build: () {
-        when(() => useCases.getAllBlocks())
-            .thenAnswer((_) => Stream.error(Exception()));
-
-        return TrainingLogBloc(useCases: useCases);
-      },
-      expect: () => [ const Loading(), const Error() ]
-  );
-
+  /// -----------------------------------------------
+  /// Test the initial state of the bloc
+  /// -----------------------------------------------
   group(
-      "update Block",
+    "Test the initial state of the bloc",
+    () {
+      blocTest<TrainingLogBloc, TrainingLogState>(
+          'initial states should be Loading then Loaded',
+          build: () {
+            when(() => useCases.getAllBlocks())
+                .thenAnswer((_) => Stream.value(const Right(blocks)));
+
+            return TrainingLogBloc(useCases: useCases);
+          },
+          expect: () => [ const Loading(), const Loaded(blocks: blocks) ]
+      );
+
+
+      blocTest<TrainingLogBloc, TrainingLogState>(
+          'Error state should be emitted when repository fails',
+          build: () {
+            when(() => useCases.getAllBlocks())
+                .thenAnswer((_) => Stream.value(Left(MockRepositoryFailure())));
+
+            return TrainingLogBloc(useCases: useCases);
+          },
+          expect: () => [ const Loading(), const Error() ]
+      );
+
+
+      blocTest<TrainingLogBloc, TrainingLogState>(
+          'Error state should be emitted when stream fails',
+          build: () {
+            when(() => useCases.getAllBlocks())
+                .thenAnswer((_) => Stream.error(Exception()));
+
+            return TrainingLogBloc(useCases: useCases);
+          },
+          expect: () => [ const Loading(), const Error() ]
+      );
+    }
+  );
+
+
+  /// -----------------------------------------------
+  /// Test the bloc when a new block is added
+  /// -----------------------------------------------
+  group(
+      "Test the bloc when a new block is added",
       () {
           late StreamController<Either<Failure, List<BlockWithSessions>>> blocksStreamController;
+          const newBlock = BlockWithSessions(id: 4, name: 'Block 4', sessions: <Session>[]);
+
           setUp(() {
             blocksStreamController = StreamController<Either<Failure, List<BlockWithSessions>>>();
             blocksStreamController.add(const Right(blocks));
@@ -81,7 +97,7 @@ void main() {
                 .thenAnswer((_) => blocksStreamController.stream);
           });
 
-          const newBlock = BlockWithSessions(id: 4, name: 'Block 4', sessions: <Session>[]);
+
           blocTest<TrainingLogBloc, TrainingLogState>(
               'Loaded state should get updated when a new block is added',
               build: () {
@@ -96,6 +112,7 @@ void main() {
               act: (bloc) => bloc.add(AddBlock(blockName: newBlock.name, nbDays: 1)),
               expect: () => [ const Loading(), const Loaded(blocks: blocks), const Loaded(blocks: [...blocks, newBlock]) ]
           );
+
 
           blocTest<TrainingLogBloc, TrainingLogState>(
               'Error state should be emitted when a new block fails to be added',
