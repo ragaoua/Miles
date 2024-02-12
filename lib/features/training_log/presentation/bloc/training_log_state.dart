@@ -35,10 +35,10 @@ class ShowingNewBlockSheet extends TrainingLogState {
   final int nbDaysPerMicroCycle;
 
   const ShowingNewBlockSheet({
-    required this.blockName,
-    required this.blockNameError,
-    required this.areMicroCycleSettingsShown,
-    required this.nbDaysPerMicroCycle,
+    this.blockName = "",
+    this.blockNameError = "",
+    this.areMicroCycleSettingsShown = false,
+    this.nbDaysPerMicroCycle = 3,
   });
 
   @override
