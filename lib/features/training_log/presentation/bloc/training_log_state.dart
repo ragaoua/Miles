@@ -32,7 +32,7 @@ class ShowingNewBlockSheet extends TrainingLogState {
   final String blockName;
   final String blockNameError;
   final bool areMicroCycleSettingsShown;
-  final String nbDaysPerMicroCycle;
+  final int nbDaysPerMicroCycle;
 
   const ShowingNewBlockSheet({
     required this.blockName,
