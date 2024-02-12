@@ -10,23 +10,13 @@ abstract class TrainingLogEvent extends Equatable {
 
 class LoadBlocks extends TrainingLogEvent {}
 
-// class UpdateNewBlockName extends TrainingLogEvent {
-//   final String newBlockName;
-//
-//   const UpdateNewBlockName({required this.newBlockName});
-//   @override
-//   List<Object> get props => [newBlockName];
-// }
+class UpdateBlocks extends TrainingLogEvent {
+  final List<BlockWithSessions> blocks;
 
-class ToggleMicroCycleSettings extends TrainingLogEvent {}
-
-// class UpdateDaysPerMicroCycle extends TrainingLogEvent {
-//   final String nbDays;
-//
-//   const UpdateDaysPerMicroCycle({required this.nbDays});
-//   @override
-//   List<Object> get props => [nbDays];
-// }
+  const UpdateBlocks({required this.blocks});
+  @override
+  List<Object> get props => [blocks];
+}
 
 class AddBlock extends TrainingLogEvent {
   final String blockName;
@@ -46,14 +36,6 @@ class DeleteBlock extends TrainingLogEvent {
   const DeleteBlock({required this.block});
   @override
   List<Object> get props => [block];
-}
-
-class UpdateBlocks extends TrainingLogEvent {
-  final List<BlockWithSessions> blocks;
-
-  const UpdateBlocks({required this.blocks});
-  @override
-  List<Object> get props => [blocks];
 }
 
 class ShowError extends TrainingLogEvent {
