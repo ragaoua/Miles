@@ -51,7 +51,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
     emit(Error(message: event.message)); // TODO : handle error
   }
 
-  Future<void> _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
+  void _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
     final insertBlockEither = await useCases.insertBlock(
         name: event.blockName,
         nbDays: event.nbDays
