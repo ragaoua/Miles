@@ -26,6 +26,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
     on<AddBlock>(_onAddBlock);
     on<UpdateBlocks>(_onUpdateBlocks);
     on<ShowError>(_onShowError);
+    on<DeleteBlock>(_onDeleteBlock);
 
     add(LoadBlocks());
   }
@@ -60,6 +61,13 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
         (failure) => add(const ShowError()), // TODO : handle error
         (blockId) {} // TODO : navigate to this block's page
     );
+  }
+
+  void _onDeleteBlock(DeleteBlock event, Emitter<TrainingLogState> emit) async {
+    final deleteBlockFailure = await useCases.deleteBlock(event.block);
+    if (deleteBlockFailure != null) {
+      add(const ShowError());
+    }
   }
 
   @override

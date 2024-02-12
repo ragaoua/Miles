@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/delete_block_use_case.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks_use_case.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/insert_block_use_case.dart';
 import 'package:miles/features/training_log/presentation/bloc/training_log_bloc.dart';
@@ -15,12 +16,15 @@ import '../../../../core/mock_repository_failure.dart';
 
 class GetAllBlocksUseCaseMock extends Mock implements GetAllBlocksUseCase {}
 class InsertBlockUseCaseMock extends Mock implements InsertBlockUseCase {}
+class DeleteBlockUseCaseMock extends Mock implements DeleteBlockUseCase {}
 class TrainingLogUseCasesMock extends Mock implements TrainingLogUseCases {
   @override final GetAllBlocksUseCaseMock getAllBlocks;
   @override final InsertBlockUseCaseMock insertBlock;
+  @override final DeleteBlockUseCaseMock deleteBlock;
   TrainingLogUseCasesMock({
     required this.getAllBlocks,
-    required this.insertBlock
+    required this.insertBlock,
+    required this.deleteBlock
   });
 }
 
@@ -28,7 +32,8 @@ void main() {
 
   final TrainingLogUseCases useCases = TrainingLogUseCasesMock(
       getAllBlocks: GetAllBlocksUseCaseMock(),
-      insertBlock: InsertBlockUseCaseMock()
+      insertBlock: InsertBlockUseCaseMock(),
+      deleteBlock: DeleteBlockUseCaseMock()
   );
 
   const blocks = [
@@ -126,5 +131,58 @@ void main() {
               expect: () => [ const Loading(), const Loaded(blocks: blocks), const Error() ]
           );
   });
+
+
+  /// -----------------------------------------------
+  /// Test the bloc when a block is deleted
+  /// -----------------------------------------------
+  group(
+    "Test the bloc when a block is deleted",
+    () {
+      late StreamController<Either<Failure, List<BlockWithSessions>>> blocksStreamController;
+      const blockToDelete = BlockWithSessions(id: 2, name: 'Block 2', sessions: <Session>[]);
+
+      setUp(() {
+        blocksStreamController = StreamController<Either<Failure, List<BlockWithSessions>>>();
+        blocksStreamController.add(const Right(blocks));
+        when(() => useCases.getAllBlocks())
+            .thenAnswer((_) => blocksStreamController.stream);
+      });
+
+
+      blocTest<TrainingLogBloc, TrainingLogState>(
+          'Loaded state should get updated when a block is deleted',
+          build: () {
+            when(() => useCases.deleteBlock(blockToDelete))
+                .thenAnswer((_) async {
+                    blocksStreamController.add(Right(List.from(blocks)..remove(blockToDelete)));
+                    return null;
+                });
+
+            return TrainingLogBloc(useCases: useCases);
+          },
+          act: (bloc) => bloc.add(const DeleteBlock(block: blockToDelete)),
+          expect: () => [
+            const Loading(),
+            const Loaded(blocks: blocks),
+            Loaded(blocks: List.from(blocks)..remove(blockToDelete))
+          ]
+      );
+
+
+      blocTest<TrainingLogBloc, TrainingLogState>(
+          'Error state should be emitted when a block fails to be deleted',
+          build: () {
+            when(() => useCases.deleteBlock(blockToDelete))
+                .thenAnswer((_) async => MockRepositoryFailure());
+
+            return TrainingLogBloc(useCases: useCases);
+          },
+          act: (bloc) => bloc.add(const DeleteBlock(block: blockToDelete)),
+          expect: () => [ const Loading(), const Loaded(blocks: blocks), const Error() ]
+      );
+
+    }
+  );
 
 }
