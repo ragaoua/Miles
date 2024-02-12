@@ -21,7 +21,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
   StreamSubscription? _blocksSubscription ;
 
-  TrainingLogBloc({required this.useCases}) : super(Loading()) {
+  TrainingLogBloc({required this.useCases}) : super(const Loading()) {
     on<LoadBlocks>(_onLoadBlocks);
     on<AddBlock>(_onAddBlock);
     on<UpdateBlocks>(_onUpdateBlocks);
@@ -31,7 +31,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
   }
 
   void _onLoadBlocks(LoadBlocks event, Emitter<TrainingLogState> emit) {
-    emit(Loading());
+    emit(const Loading());
 
     _blocksSubscription?.cancel();
     _blocksSubscription = useCases.getAllBlocks().listen(

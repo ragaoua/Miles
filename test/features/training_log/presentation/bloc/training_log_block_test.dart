@@ -45,7 +45,7 @@ void main() {
 
           return TrainingLogBloc(useCases: useCases);
       },
-      expect: () => [Loading(), const Loaded(blocks: blocks)]
+      expect: () => [ const Loading(), const Loaded(blocks: blocks) ]
   );
 
   blocTest<TrainingLogBloc, TrainingLogState>(
@@ -56,7 +56,7 @@ void main() {
 
         return TrainingLogBloc(useCases: useCases);
       },
-      expect: () => [Loading(), Error()]
+      expect: () => [ const Loading(), const Error() ]
   );
 
   blocTest<TrainingLogBloc, TrainingLogState>(
@@ -67,7 +67,7 @@ void main() {
 
         return TrainingLogBloc(useCases: useCases);
       },
-      expect: () => [ Loading(), Error() ]
+      expect: () => [ const Loading(), const Error() ]
   );
 
   group(
@@ -94,7 +94,7 @@ void main() {
                   return TrainingLogBloc(useCases: useCases);
               },
               act: (bloc) => bloc.add(AddBlock(blockName: newBlock.name, nbDays: 1)),
-              expect: () => [ Loading(), const Loaded(blocks: blocks), const Loaded(blocks: [...blocks, newBlock]) ]
+              expect: () => [ const Loading(), const Loaded(blocks: blocks), const Loaded(blocks: [...blocks, newBlock]) ]
           );
 
           blocTest<TrainingLogBloc, TrainingLogState>(
@@ -106,7 +106,7 @@ void main() {
                     return TrainingLogBloc(useCases: useCases);
               },
               act: (bloc) => bloc.add(AddBlock(blockName: newBlock.name, nbDays: 1)),
-              expect: () => [ Loading(), const Loaded(blocks: blocks), Error() ]
+              expect: () => [ const Loading(), const Loaded(blocks: blocks), const Error() ]
           );
   });
 

@@ -8,7 +8,9 @@ abstract class TrainingLogState extends Equatable {
   List<Object> get props => [];
 }
 
-class Loading extends TrainingLogState {}
+class Loading extends TrainingLogState {
+  const Loading();
+}
 
 class Loaded extends TrainingLogState {
   final List<BlockWithSessions> blocks;
