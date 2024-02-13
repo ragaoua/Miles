@@ -1,3 +1,5 @@
 {
-  "training_log": "Journal d'entraînement"
+  "training_log": "Journal d'entraînement",
+  "no_training_blocks": "Aucun bloc d'entraînement pour le moment",
+  "start_new_block": "Appuyez sur le bouton ci-dessous pour en ajouter un nouveau"
 }
