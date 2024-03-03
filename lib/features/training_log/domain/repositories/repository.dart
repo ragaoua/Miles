@@ -14,8 +14,11 @@ abstract class Repository {
   Stream<Either<Failure, List<BlockWithSessions>>> getAllBlocks();
   Future<Either<Failure, Block?>> getBlockByName(String name);
 
-  Future<Either<
-      Failure,
-      List<DayWithSessions<SessionWithExercises<ExerciseWithMovementAndSets>>>
-  >> getDaysByBlockId(blockId);
+  Future<
+          Either<
+              Failure,
+              List<
+                  DayWithSessions<
+                      SessionWithExercises<ExerciseWithMovementAndSets>>>>>
+      getDaysByBlockId(blockId);
 }

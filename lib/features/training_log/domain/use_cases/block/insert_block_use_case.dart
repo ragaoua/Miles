@@ -13,16 +13,16 @@ class InsertBlockUseCase {
 
   Future<Either<Failure, int>> call({
     required String name,
-    required int nbDays
+    required int nbDays,
   }) async {
     final blockNameValidation = await validateBlockName(
-        repository: repository,
-        name: name
+      repository: repository,
+      name: name,
     );
 
     return blockNameValidation.fold(
       (failure) => Left(failure),
-      (_) => repository.insertBlockAndDays(name, nbDays)
+      (_) => repository.insertBlockAndDays(name, nbDays),
     );
   }
 }

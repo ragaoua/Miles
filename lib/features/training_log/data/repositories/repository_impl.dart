@@ -9,7 +9,6 @@ import '../../domain/repositories/repository.dart';
 import '../datasources/local/database/database.dart';
 
 class RepositoryImpl implements Repository {
-
   final Database db;
 
   RepositoryImpl({required this.db});
@@ -17,8 +16,7 @@ class RepositoryImpl implements Repository {
   @override
   Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays) {
     try {
-      return db.insertBlockAndDays(name, nbDays)
-          .then(Right.new);
+      return db.insertBlockAndDays(name, nbDays).then(Right.new);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
@@ -45,8 +43,7 @@ class RepositoryImpl implements Repository {
   @override
   Stream<Either<Failure, List<BlockWithSessions>>> getAllBlocks() {
     try {
-      return db.getAllBlocks()
-          .map(Right.new);
+      return db.getAllBlocks().map(Right.new);
     } catch (e) {
       return Stream.value(Left(DatabaseFailure(e.toString())));
     }
@@ -55,20 +52,21 @@ class RepositoryImpl implements Repository {
   @override
   Future<Either<Failure, Block?>> getBlockByName(String name) {
     try {
-      return db.getBlockByName(name)
-          .then(Right.new);
+      return db.getBlockByName(name).then(Right.new);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
   }
 
   @override
-  Future<Either<
-      Failure,
-      List<DayWithSessions<SessionWithExercises<ExerciseWithMovementAndSets>>>
-  >> getDaysByBlockId(blockId) {
+  Future<
+          Either<
+              Failure,
+              List<
+                  DayWithSessions<
+                      SessionWithExercises<ExerciseWithMovementAndSets>>>>>
+      getDaysByBlockId(blockId) {
     // TODO: implement getDaysByBlockId
     throw UnimplementedError();
   }
-
 }

@@ -1,7 +1,4 @@
-enum NullSort {
-  first,
-  last
-}
+enum NullSort { first, last }
 
 extension SortedByListExtension<T> on Iterable<T> {
   /// Sort a list by multiple selectors and return a new list.
@@ -45,9 +42,9 @@ extension SortedByListExtension<T> on Iterable<T> {
   /// * [sortedByListDescending] for a descending sort.
   /// * [NullSort] for the behavior of null elements.
   Iterable<T> sortedByList(
-      List<Comparable? Function(T)> selectors,
-      {NullSort nullSort = NullSort.last}
-  ) {
+    List<Comparable? Function(T)> selectors, {
+    NullSort nullSort = NullSort.last,
+  }) {
     var listToSort = List<T>.from(this);
 
     listToSort.sort((a, b) {
@@ -73,9 +70,8 @@ extension SortedByListExtension<T> on Iterable<T> {
   ///
   /// See [sortedByList] for more details.
   Iterable<T> sortedByListDescending(
-      List<Comparable? Function(T)> selectors,
-      {NullSort nullSort = NullSort.last}
-  ) {
-    return sortedByList(selectors, nullSort: nullSort).toList().reversed;
-  }
+    List<Comparable? Function(T)> selectors, {
+    NullSort nullSort = NullSort.last,
+  }) =>
+      sortedByList(selectors, nullSort: nullSort).toList().reversed;
 }

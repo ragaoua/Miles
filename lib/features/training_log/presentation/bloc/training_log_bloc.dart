@@ -19,7 +19,7 @@ part 'training_log_use_cases.dart';
 class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
   final TrainingLogUseCases useCases;
 
-  StreamSubscription? _blocksSubscription ;
+  StreamSubscription? _blocksSubscription;
 
   TrainingLogBloc({required this.useCases}) : super(const Loading()) {
     on<LoadBlocks>(_onLoadBlocks);
@@ -36,12 +36,12 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
     _blocksSubscription?.cancel();
     _blocksSubscription = useCases.getAllBlocks().listen(
-        (getAllBlocksEither) => getAllBlocksEither.fold(
+          (getAllBlocksEither) => getAllBlocksEither.fold(
             (failure) => add(const ShowError()), // TODO : handle error
-            (blocks) => add(UpdateBlocks(blocks: blocks))
-        ),
-        onError: (_) => add(const ShowError()) // TODO : handle error
-    );
+            (blocks) => add(UpdateBlocks(blocks: blocks)),
+          ),
+          onError: (_) => add(const ShowError()), // TODO : handle error
+        );
   }
 
   void _onUpdateBlocks(UpdateBlocks event, Emitter<TrainingLogState> emit) {
@@ -54,12 +54,12 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
   void _onAddBlock(AddBlock event, Emitter<TrainingLogState> emit) async {
     final insertBlockEither = await useCases.insertBlock(
-        name: event.blockName,
-        nbDays: event.nbDays
+      name: event.blockName,
+      nbDays: event.nbDays,
     );
     insertBlockEither.fold(
-        (failure) => add(const ShowError()), // TODO : handle error
-        (blockId) {} // TODO : navigate to this block's page
+      (failure) => add(const ShowError()), // TODO : handle error
+      (blockId) {}, // TODO : navigate to this block's page
     );
   }
 
@@ -72,7 +72,7 @@ class TrainingLogBloc extends Bloc<TrainingLogEvent, TrainingLogState> {
 
   @override
   Future<void> close() {
-    _blocksSubscription?.cancel(); // Cancel the subscription
+    _blocksSubscription?.cancel();
     return super.close();
   }
 }

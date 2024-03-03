@@ -9,14 +9,18 @@ final sl = GetIt.instance;
 
 void init() {
   // Bloc
-  sl.registerFactory(() =>
-      TrainingLogBloc(useCases: sl())
+  sl.registerFactory(
+    () => TrainingLogBloc(useCases: sl()),
   );
-  sl.registerLazySingleton(() =>
-      TrainingLogUseCases(repository: sl())
+  sl.registerLazySingleton(
+    () => TrainingLogUseCases(repository: sl()),
   );
 
   // Repository and database
-  sl.registerLazySingleton<Repository>(() => RepositoryImpl(db: sl()));
-  sl.registerLazySingleton<Database>(() => Database(openConnection()));
+  sl.registerLazySingleton<Repository>(
+    () => RepositoryImpl(db: sl()),
+  );
+  sl.registerLazySingleton<Database>(
+    () => Database(openConnection()),
+  );
 }
