@@ -18,11 +18,11 @@ part '../dao/session_dao.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
-    tables: [
-      BlockDAO,
-      DayDAO,
-      SessionDAO,
-    ]
+  tables: [
+    BlockDAO,
+    DayDAO,
+    SessionDAO,
+  ],
 )
 class Database extends _$Database {
   Database(QueryExecutor e) : super(e);
@@ -30,21 +30,37 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 1;
 
-  Stream<List<BlockWithSessions>> getAllBlocks() =>
-      select(blockDAO)
-          .join([
-            leftOuterJoin(dayDAO, dayDAO.blockId.equalsExp(blockDAO.id)),
-            leftOuterJoin(sessionDAO, sessionDAO.dayId.equalsExp(dayDAO.id))
-          ])
-          .watch()
-          .map(_mapRowsToBlockWithSessionsList);
+  Stream<List<BlockWithSessions>> getAllBlocks() {
+    return customSelect(
+      """
+      SELECT
+        block.id AS "block.id",
+        block.name AS "block.name",
+        session.id AS "session.id",
+        session.day_id AS "session.day_id",
+        session.date AS "session.date"
+      FROM block
+      LEFT JOIN day ON block.id = day.block_id
+      LEFT JOIN session ON day.id = session.day_id
+      ORDER BY
+          max(session.date) OVER(PARTITION BY block.id) DESC,
+          block.id DESC,
+          session.date,
+          session.id
+      """,
+      readsFrom: {blockDAO, dayDAO, sessionDAO},
+    ).watch().map(_mapRowsToBlockWithSessionsList);
+  }
 
-  List<BlockWithSessions> _mapRowsToBlockWithSessionsList(List<TypedResult> rows) {
+  List<BlockWithSessions> _mapRowsToBlockWithSessionsList(
+    List<QueryRow> rows,
+  ) {
     final Map<Block, List<Session>> blockSessionsMap = {};
     for (final row in rows) {
-      final block = row.readTable(blockDAO);
-      final session = row.readTableOrNull(sessionDAO);
-      if (session != null) {
+      final block = blockDAO.map(row.data, tablePrefix: "block");
+
+      if (row.data["session.id"] != null) {
+        final session = sessionDAO.map(row.data, tablePrefix: "session");
         blockSessionsMap.putIfAbsent(block, () => []).add(session);
       } else {
         blockSessionsMap.putIfAbsent(block, () => []);
@@ -55,37 +71,31 @@ class Database extends _$Database {
       final block = entries.key;
       final sessions = entries.value;
       return BlockWithSessions(
-          id: block.id,
-          name: block.name,
-          sessions: sessions
+        id: block.id,
+        name: block.name,
+        sessions: sessions,
       );
     }).toList();
   }
 
   Future<Block?> getBlockByName(String name) =>
-      (select(blockDAO)
-        ..where((block) => block.name.equals(name))
-      ).getSingleOrNull();
+      (select(blockDAO)..where((block) => block.name.equals(name)))
+          .getSingleOrNull();
 
-  Future<int> insertBlockAndDays(String name, int nbDays) =>
-    transaction(() =>
-      into(blockDAO).insert(
-          BlockDAOCompanion(name: Value(name))
-      ).then((blockId) {
+  Future<int> insertBlockAndDays(String name, int nbDays) => transaction(() =>
+      into(blockDAO)
+          .insert(BlockDAOCompanion(name: Value(name)))
+          .then((blockId) {
         for (var dayOrder = 1; dayOrder <= nbDays; dayOrder++) {
-          into(dayDAO).insert(DayDAOCompanion(
-              blockId: Value(blockId),
-              order: Value(dayOrder)
-          ));
+          into(dayDAO).insert(
+              DayDAOCompanion(blockId: Value(blockId), order: Value(dayOrder)));
         }
 
         return blockId;
-      })
-    );
+      }));
 }
 
-LazyDatabase openConnection() =>
-    LazyDatabase(() async {
+LazyDatabase openConnection() => LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
       final file = File(path.join(dbFolder.path, 'db.sqlite'));
 

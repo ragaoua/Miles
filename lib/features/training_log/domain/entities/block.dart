@@ -12,16 +12,8 @@ class Block extends Equatable {
 
   const Block({
     this.id = defaultId,
-    this.name = defaultName
+    this.name = defaultName,
   });
-
-  Block copy({
-    int? id,
-    String? name
-  }) => Block(
-    id: id ?? this.id,
-    name: name ?? this.name
-  );
 
   @override
   List<Object?> get props => [id, name];
@@ -36,8 +28,8 @@ class BlockWithDays<T extends Day> extends Block {
   const BlockWithDays({
     id = Block.defaultId,
     name = Block.defaultName,
-    required this.days
-  }): super(id: id, name: name);
+    required this.days,
+  }) : super(id: id, name: name);
 }
 
 class BlockWithSessions<T extends Session> extends Block {
@@ -46,17 +38,9 @@ class BlockWithSessions<T extends Session> extends Block {
   const BlockWithSessions({
     id = Block.defaultId,
     name = Block.defaultName,
-    required this.sessions
-  }): super(id: id, name: name);
+    required this.sessions,
+  }) : super(id: id, name: name);
 
   @override
-  BlockWithSessions<T> copy({
-    int? id,
-    String? name,
-    List<T>? sessions
-  }) => BlockWithSessions(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    sessions: sessions ?? this.sessions
-  );
+  List<Object?> get props => [id, name, sessions];
 }
