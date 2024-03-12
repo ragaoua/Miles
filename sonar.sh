@@ -79,7 +79,7 @@ docker run -d --name "$sonar_container" \
 	"$sonar_image"
 
 # Copy the flutter plugin into the plugin repo of the sonar container
-docker cp "$sonar_flutter_plugin" "$sonar_container":"${sonar_extensions_dir}/plugins"
+docker cp "$SONAR_FLUTTER_PLUGIN" "$sonar_container":"${sonar_extensions_dir}/plugins"
 docker restart "$sonar_container"
 
 # Install the sonar scanner CLI
