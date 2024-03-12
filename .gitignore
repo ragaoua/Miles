@@ -48,3 +48,4 @@ app.*.map.json
 
 # sonar
 .scannerwork/
+coverage/lcov.info

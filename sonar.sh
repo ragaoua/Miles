@@ -92,4 +92,5 @@ EOF
 readonly response=$(curl -u "$sonar_admin_user":"$sonar_admin_password" -X POST "http://localhost:$sonar_port/api/user_tokens/generate?name=$sonar_token_name")
 readonly token=$(echo "$response" | awk -F'"' '{ for(i=1;i<=NF;i++){ if($i=="token"){ print $(i+2) } } }')
 cd "$project_dir"
+flutter test --machine --coverage
 sonar-scanner -D sonar.token="$token"
