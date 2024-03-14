@@ -1,6 +1,6 @@
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 
 import '../../../../../core/failure.dart';
 
@@ -8,18 +8,17 @@ import '../../../../../core/failure.dart';
 /// If the name is blank or already used, return a Failure.
 class UpdateBlockUseCase {
   final Repository repository;
+  final BlockNameValidator blockNameValidator;
 
-  UpdateBlockUseCase(this.repository);
+  UpdateBlockUseCase({
+    required this.repository,
+    required this.blockNameValidator,
+  });
 
   Future<Failure?> call(Block block) async {
-    final blockNameValidation = await validateBlockName(
-        repository: repository,
-        name: block.name
-    );
+    final blockNameValidationFailure =
+        await blockNameValidator.validate(block.name);
 
-    return blockNameValidation.fold(
-      (failure) => failure,
-      (_) async => await repository.updateBlock(block)
-    );
+    return blockNameValidationFailure ?? await repository.updateBlock(block);
   }
 }

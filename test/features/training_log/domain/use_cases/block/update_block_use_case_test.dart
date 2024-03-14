@@ -1,102 +1,98 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
-import 'package:miles/features/training_log/domain/use_cases/block/helpers/validate_block_name.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/update_block_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../repository/mock_repository.dart';
 
-class _MockRepositoryFailure extends Failure {}
+class MockFailure extends Failure {}
+
+class MockBlockNameValidator extends Mock implements BlockNameValidator {}
 
 void main() {
   late Repository mockRepository;
+  late BlockNameValidator blockNameValidator;
   late UpdateBlockUseCase updateBlock;
 
   setUp(() {
     mockRepository = MockRepository();
-    updateBlock = UpdateBlockUseCase(mockRepository);
+    blockNameValidator = MockBlockNameValidator();
+    updateBlock = UpdateBlockUseCase(
+      repository: mockRepository,
+      blockNameValidator: blockNameValidator,
+    );
   });
 
-  test(
-      "should fail when updating a block with an empty name",
-      () async {
-        // act
-        final result = await updateBlock(const Block(name: " "));
-        // assert
-        expect(result, isA<BlockNameEmptyFailure>());
+  test("should update a block with a valid name", () async {
+    // arrange
+    const block = Block(id: 1, name: "Valid name");
 
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    when(
+      () => blockNameValidator.validate(block.name),
+    ).thenAnswer((_) async => null);
 
-  test(
-      "should fail when updating a block with a name that already exists",
-      () async {
-        const blockName = "Block 1";
-        const updatedBlock = Block(id: 2, name: blockName);
+    when(
+      () => mockRepository.updateBlock(block),
+    ).thenAnswer((_) async => null);
 
-        // arrange
-        when(() => mockRepository.getBlockByName(blockName))
-            .thenAnswer((_) async => const Right(Block(id: 1, name: blockName)));
+    // act
+    final result = await updateBlock(block);
 
-        // act
-        final result = await updateBlock(updatedBlock);
+    // assert
+    expect(result, null);
+    verify(() => blockNameValidator.validate(block.name));
+    verify(
+      () => mockRepository.updateBlock(block),
+    );
+    verifyNoMoreInteractions(blockNameValidator);
+    verifyNoMoreInteractions(mockRepository);
+  });
 
-        // assert
-        expect(result, isA<BlockNameAlreadyExistsFailure>());
+  test("should fail when updating a block with an invalid name", () async {
+    // arrange
+    const block = Block(name: "Invalid name");
+    final failure = MockFailure();
+    when(
+      () => blockNameValidator.validate(block.name),
+    ).thenAnswer((_) async => failure);
 
-        verify(() => mockRepository.getBlockByName(blockName));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // act
+    final result = await updateBlock(block);
 
-  test(
-      "should update a block with a name that does not exist yet",
-      () async {
-        const blockName = "Block 5";
-        const updatedBlock = Block(id: 5, name: blockName);
+    // assert
+    expect(result, failure);
+    verify(() => blockNameValidator.validate(block.name));
+    verifyNoMoreInteractions(blockNameValidator);
+    verifyNoMoreInteractions(mockRepository);
+  });
 
-        // arrange
-        when(() => mockRepository.getBlockByName(blockName))
-            .thenAnswer((_) async => const Right(null));
-        when(() => mockRepository.updateBlock(updatedBlock))
-            .thenAnswer((_) async => null);
+  test("should propagate repository failure when updating a block", () async {
+    // arrange
+    const block = Block(id: 5, name: "Block 5");
+    final failure = MockFailure();
 
-        // act
-        final result = await updateBlock(updatedBlock);
+    when(
+      () => blockNameValidator.validate(block.name),
+    ).thenAnswer(
+      (_) async => null,
+    );
+    when(
+      () => mockRepository.updateBlock(block),
+    ).thenAnswer(
+      (_) async => failure,
+    );
 
-        // assert
-        expect(result, null);
-        verify(() => mockRepository.getBlockByName(blockName));
-        verify(() => mockRepository.updateBlock(updatedBlock));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // act
+    final result = await updateBlock(block);
 
-  test(
-      "should propagate repository failure when updating a block",
-      () async {
-        const blockName = "Block 5";
-        const updatedBlock = Block(id: 5, name: blockName);
-        final repositoryFailure = _MockRepositoryFailure();
-
-        // arrange
-        when(() => mockRepository.getBlockByName(blockName))
-            .thenAnswer((_) async => const Right(null));
-        when(() => mockRepository.updateBlock(updatedBlock))
-            .thenAnswer((_) async => repositoryFailure);
-
-        // act
-        final result = await updateBlock(updatedBlock);
-
-        // assert
-        expect(result, repositoryFailure);
-        verify(() => mockRepository.getBlockByName(blockName));
-        verify(() => mockRepository.updateBlock(updatedBlock));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // assert
+    expect(result, failure);
+    verify(() => blockNameValidator.validate(block.name));
+    verify(() => mockRepository.updateBlock(block));
+    verifyNoMoreInteractions(blockNameValidator);
+    verifyNoMoreInteractions(mockRepository);
+  });
 }

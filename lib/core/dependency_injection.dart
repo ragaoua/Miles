@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 
 import '../features/training_log/data/datasources/local/database/database.dart';
 import '../features/training_log/data/repositories/repository_impl.dart';
@@ -13,7 +14,10 @@ void init() {
     () => TrainingLogBloc(useCases: sl()),
   );
   sl.registerLazySingleton(
-    () => TrainingLogUseCases(repository: sl()),
+    () => TrainingLogUseCases(repository: sl(), blockNameValidator: sl()),
+  );
+  sl.registerLazySingleton(
+    () => BlockNameValidator(repository: sl()),
   );
 
   // Repository and database

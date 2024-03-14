@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/get_all_blocks_use_case.dart';
+import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 
 import '../../domain/entities/block.dart';
 import '../../domain/repositories/repository.dart';

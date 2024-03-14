@@ -7,10 +7,18 @@ class TrainingLogUseCases {
   final DeleteBlockUseCase deleteBlock;
   final RestoreBlockUseCase restoreBlock;
 
-  TrainingLogUseCases({required Repository repository}) :
-        getAllBlocks = GetAllBlocksUseCase(repository),
-        insertBlock = InsertBlockUseCase(repository),
-        updateBlock = UpdateBlockUseCase(repository),
+  TrainingLogUseCases({
+    required Repository repository,
+    required BlockNameValidator blockNameValidator,
+  })  : getAllBlocks = GetAllBlocksUseCase(repository),
+        insertBlock = InsertBlockUseCase(
+          repository: repository,
+          blockNameValidator: blockNameValidator,
+        ),
+        updateBlock = UpdateBlockUseCase(
+          repository: repository,
+          blockNameValidator: blockNameValidator,
+        ),
         deleteBlock = DeleteBlockUseCase(repository),
         restoreBlock = RestoreBlockUseCase(repository);
 }
