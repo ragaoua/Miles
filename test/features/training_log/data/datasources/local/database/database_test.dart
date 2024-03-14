@@ -188,4 +188,36 @@ void main() {
       );
     },
   );
+
+  group('insertBlockAndDays', () {
+    test(
+      'should insert a block and the given number of days',
+      () async {
+        // Arrange
+        const blockName = 'Block 1';
+        const nbDays = 3;
+
+        // Act
+        final insertedBlockId = await db.insertBlockAndDays(blockName, nbDays);
+
+        // Assert
+        final block = await db.select(db.blockDAO).getSingle();
+        expect(block, Block(id: insertedBlockId, name: blockName));
+
+        final days = await db.select(db.dayDAO).get();
+        expect(days.length, nbDays);
+        // Check each day has the correct block id and order
+        for (final dayIndex in Iterable.generate(nbDays)) {
+          expect(
+            days[dayIndex],
+            Day(
+              id: dayIndex + 1,
+              blockId: insertedBlockId,
+              order: dayIndex + 1,
+            ),
+          );
+        }
+      },
+    );
+  });
 }
