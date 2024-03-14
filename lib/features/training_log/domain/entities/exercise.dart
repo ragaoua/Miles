@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:miles/features/training_log/domain/entities/set.dart';
+import 'package:miles/features/training_log/domain/entities/exercise_set.dart';
 
 import 'movement.dart';
 
@@ -33,15 +33,16 @@ class Exercise extends Equatable {
     int? order,
     int? supersetOrder,
     int? movementId,
-    RatingType? ratingType
-  }) => Exercise(
-    id: id ?? this.id,
-    sessionId: sessionId ?? this.sessionId,
-    order: order ?? this.order,
-    supersetOrder: supersetOrder ?? this.supersetOrder,
-    movementId: movementId ?? this.movementId,
-    ratingType: ratingType ?? this.ratingType
-  );
+    RatingType? ratingType,
+  }) =>
+      Exercise(
+        id: id ?? this.id,
+        sessionId: sessionId ?? this.sessionId,
+        order: order ?? this.order,
+        supersetOrder: supersetOrder ?? this.supersetOrder,
+        movementId: movementId ?? this.movementId,
+        ratingType: ratingType ?? this.ratingType,
+      );
 
   @override
   List<Object?> get props =>
@@ -53,7 +54,7 @@ class Exercise extends Equatable {
 
 class ExerciseWithMovementAndSets extends Exercise {
   final Movement movement;
-  final List<Set> sets;
+  final List<ExerciseSet> sets;
 
   const ExerciseWithMovementAndSets({
     id = Exercise.defaultId,
@@ -63,15 +64,15 @@ class ExerciseWithMovementAndSets extends Exercise {
     movementId = Exercise.defaultMovementId,
     ratingType = Exercise.defaultRatingType,
     required this.movement,
-    required this.sets
-  }): super(
-    id: id,
-    sessionId: sessionId,
-    order: order,
-    supersetOrder: supersetOrder,
-    movementId: movementId,
-    ratingType: ratingType
-  );
+    required this.sets,
+  }) : super(
+          id: id,
+          sessionId: sessionId,
+          order: order,
+          supersetOrder: supersetOrder,
+          movementId: movementId,
+          ratingType: ratingType,
+        );
 
   @override
   ExerciseWithMovementAndSets copy({
@@ -82,19 +83,18 @@ class ExerciseWithMovementAndSets extends Exercise {
     int? movementId,
     RatingType? ratingType,
     Movement? movement,
-    List<Set>? sets
-  }) => ExerciseWithMovementAndSets(
-    id: id ?? this.id,
-    sessionId: sessionId ?? this.sessionId,
-    order: order ?? this.order,
-    supersetOrder: supersetOrder ?? this.supersetOrder,
-    movementId: movementId ?? this.movementId,
-    ratingType: ratingType ?? this.ratingType,
-    movement: movement ?? this.movement,
-    sets: sets ?? this.sets
-  );
+    List<ExerciseSet>? sets,
+  }) =>
+      ExerciseWithMovementAndSets(
+        id: id ?? this.id,
+        sessionId: sessionId ?? this.sessionId,
+        order: order ?? this.order,
+        supersetOrder: supersetOrder ?? this.supersetOrder,
+        movementId: movementId ?? this.movementId,
+        ratingType: ratingType ?? this.ratingType,
+        movement: movement ?? this.movement,
+        sets: sets ?? this.sets,
+      );
 }
 
-enum RatingType {
-  rpe, rir
-}
+enum RatingType { rpe, rir }
