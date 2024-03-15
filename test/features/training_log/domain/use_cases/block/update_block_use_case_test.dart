@@ -6,9 +6,8 @@ import 'package:miles/features/training_log/domain/use_cases/block/helpers/block
 import 'package:miles/features/training_log/domain/use_cases/block/update_block_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../core/mock_failure.dart';
 import '../../repository/mock_repository.dart';
-
-class MockFailure extends Failure {}
 
 class MockBlockNameValidator extends Mock implements BlockNameValidator {}
 

@@ -58,6 +58,12 @@ class RepositoryImpl implements Repository {
     }
   }
 
+  /// Retrieve a list of days for a given block.
+  /// Days are sorted by order.
+  /// Each day's sessions are sorted by date then by id
+  /// Each session's exercises are sorted by order then by supersetOrder
+  /// Each exercise's sets are sorted by order
+  /// Returns a [DatabaseFailure] if an exception is thrown by the database
   @override
   Future<
           Either<
@@ -66,7 +72,10 @@ class RepositoryImpl implements Repository {
                   DayWithSessions<
                       SessionWithExercises<ExerciseWithMovementAndSets>>>>>
       getDaysByBlockId(blockId) {
-    // TODO: implement getDaysByBlockId
-    throw UnimplementedError();
+    try {
+      return db.getDaysByBlockId(blockId).then(Right.new);
+    } catch (e) {
+      return Future.value(Left(DatabaseFailure(e.toString())));
+    }
   }
 }

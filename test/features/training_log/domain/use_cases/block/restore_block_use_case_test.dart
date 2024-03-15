@@ -5,7 +5,7 @@ import 'package:miles/features/training_log/domain/repositories/repository.dart'
 import 'package:miles/features/training_log/domain/use_cases/block/restore_block_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../core/mock_repository_failure.dart';
+import '../../../../../core/mock_failure.dart';
 import '../../repository/mock_repository.dart';
 
 void main() {
@@ -19,38 +19,32 @@ void main() {
 
   const block = BlockWithDays<Day>(id: 1, name: 'Block 1', days: []);
 
-  test(
-      'should restore the block from the repository',
-      () async {
-        // arrange
-        when(() => mockRepository.restoreBlock(block))
-            .thenAnswer((_) async => null);
+  test('should restore the block from the repository', () async {
+    // arrange
+    when(() => mockRepository.restoreBlock(block))
+        .thenAnswer((_) async => null);
 
-        // act
-        await restoreBlock(block);
+    // act
+    await restoreBlock(block);
 
-        // assert
-        verify(() => mockRepository.restoreBlock(block));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // assert
+    verify(() => mockRepository.restoreBlock(block));
+    verifyNoMoreInteractions(mockRepository);
+  });
 
-  test(
-      "should propagate repository failure when updating a block",
-      () async {
-        final repositoryFailure = MockRepositoryFailure();
+  test("should propagate repository failure when updating a block", () async {
+    final repositoryFailure = MockFailure();
 
-        // arrange
-        when(() => mockRepository.restoreBlock(block))
-            .thenAnswer((_) async => repositoryFailure);
+    // arrange
+    when(() => mockRepository.restoreBlock(block))
+        .thenAnswer((_) async => repositoryFailure);
 
-        // act
-        final result = await restoreBlock(block);
+    // act
+    final result = await restoreBlock(block);
 
-        // assert
-        expect(result, repositoryFailure);
-        verify(() => mockRepository.restoreBlock(block));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // assert
+    expect(result, repositoryFailure);
+    verify(() => mockRepository.restoreBlock(block));
+    verifyNoMoreInteractions(mockRepository);
+  });
 }

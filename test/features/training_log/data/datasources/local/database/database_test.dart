@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miles/features/training_log/data/datasources/local/database/database.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/entities/day.dart';
+import 'package:miles/features/training_log/domain/entities/exercise.dart';
+import 'package:miles/features/training_log/domain/entities/exercise_set.dart';
+import 'package:miles/features/training_log/domain/entities/movement.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
 
 void main() {
@@ -189,35 +194,218 @@ void main() {
     },
   );
 
-  group('insertBlockAndDays', () {
-    test(
-      'should insert a block and the given number of days',
-      () async {
-        // Arrange
-        const blockName = 'Block 1';
-        const nbDays = 3;
+  group(
+    'insertBlockAndDays',
+    () {
+      test(
+        'should insert a block and the given number of days',
+        () async {
+          // Arrange
+          const blockName = 'Block 1';
+          const nbDays = 3;
 
-        // Act
-        final insertedBlockId = await db.insertBlockAndDays(blockName, nbDays);
+          // Act
+          final insertedBlockId =
+              await db.insertBlockAndDays(blockName, nbDays);
 
-        // Assert
-        final block = await db.select(db.blockDAO).getSingle();
-        expect(block, Block(id: insertedBlockId, name: blockName));
+          // Assert
+          final block = await db.select(db.blockDAO).getSingle();
+          expect(block, Block(id: insertedBlockId, name: blockName));
 
-        final days = await db.select(db.dayDAO).get();
-        expect(days.length, nbDays);
-        // Check each day has the correct block id and order
-        for (final dayIndex in Iterable.generate(nbDays)) {
-          expect(
-            days[dayIndex],
-            Day(
-              id: dayIndex + 1,
-              blockId: insertedBlockId,
-              order: dayIndex + 1,
-            ),
-          );
-        }
-      },
-    );
-  });
+          final days = await db.select(db.dayDAO).get();
+          expect(days.length, nbDays);
+          // Check each day has the correct block id and order
+          for (final dayIndex in Iterable.generate(nbDays)) {
+            expect(
+              days[dayIndex],
+              Day(
+                id: dayIndex + 1,
+                blockId: insertedBlockId,
+                order: dayIndex + 1,
+              ),
+            );
+          }
+        },
+      );
+    },
+  );
+
+  group(
+    "getDaysByBlockId",
+    () {
+      Future<void> insertDaysWithSessionsWithExercisesWithMovementAndSets(
+          List<
+                  DayWithSessions<
+                      SessionWithExercises<ExerciseWithMovementAndSets>>>
+              days) async {
+        await db.batch((batch) {
+          for (final day in days) {
+            batch.insert(
+              db.dayDAO,
+              DayDAOCompanion.insert(
+                id: Value(day.id),
+                blockId: day.blockId,
+                order: day.order,
+              ),
+            );
+
+            for (final session in day.sessions) {
+              batch.insert(
+                db.sessionDAO,
+                SessionDAOCompanion.insert(
+                  id: Value(session.id),
+                  dayId: session.dayId,
+                  date: session.date,
+                ),
+              );
+
+              for (final exercise in session.exercises) {
+                batch.insert(
+                  db.movementDAO,
+                  MovementDAOCompanion.insert(
+                    id: Value(exercise.movement.id),
+                    name: exercise.movement.name,
+                  ),
+                );
+
+                batch.insert(
+                  db.exerciseDAO,
+                  ExerciseDAOCompanion.insert(
+                    id: Value(exercise.id),
+                    sessionId: exercise.sessionId,
+                    order: exercise.order,
+                    supersetOrder: exercise.supersetOrder,
+                    movementId: exercise.movement.id,
+                    ratingType: exercise.ratingType,
+                  ),
+                );
+
+                for (final set in exercise.sets) {
+                  batch.insert(
+                    db.exerciseSetDAO,
+                    ExerciseSetDAOCompanion.insert(
+                      id: Value(set.id),
+                      exerciseId: set.exerciseId,
+                      order: set.order,
+                      reps: Value(set.reps),
+                      load: Value(set.load),
+                      rating: Value(set.rating),
+                    ),
+                  );
+                }
+              }
+            }
+          }
+        });
+      }
+
+      test(
+        "should return a list of days for a given block",
+        () async {
+          // Arrange
+          final random = Random();
+          const blockId = 1;
+          const nbDays = 3;
+          const nbSessionsPerDay = 3;
+          const nbExercisesPerSession = 5;
+          const nbSetsPerExercise = 3;
+          final days = List.generate(
+            nbDays,
+            (dayIndex) {
+              final dayId = dayIndex + 1;
+              return DayWithSessions(
+                id: dayId,
+                blockId: blockId,
+                order: dayId,
+                sessions: List.generate(
+                  nbSessionsPerDay,
+                  (sessionIndex) {
+                    final sessionId =
+                        (dayIndex * nbSessionsPerDay) + (sessionIndex + 1);
+                    return SessionWithExercises(
+                      id: sessionId,
+                      dayId: dayId,
+                      date: DateTime(2021, 1, 1 + random.nextInt(3)),
+                      exercises: List.generate(
+                        nbExercisesPerSession,
+                        (exerciseIndex) {
+                          final exerciseId =
+                              ((sessionId - 1) * nbExercisesPerSession) +
+                                  (exerciseIndex + 1);
+                          return ExerciseWithMovementAndSets(
+                            id: exerciseId,
+                            sessionId: sessionId,
+                            order: exerciseIndex + 1,
+                            supersetOrder: 1, // TODO: Adjust
+                            movement: Movement(
+                              id: exerciseId,
+                              name: "Example Movement $exerciseId",
+                            ), // Movements are irrelevant here
+                            sets: List.generate(
+                              nbSetsPerExercise,
+                              (setIndex) => ExerciseSet(
+                                id: ((exerciseId - 1) * nbSetsPerExercise) +
+                                    (setIndex + 1),
+                                exerciseId: exerciseId,
+                                order: setIndex + 1,
+                              ),
+                            )..shuffle(),
+                          );
+                        },
+                      )..shuffle(),
+                    );
+                  },
+                )..shuffle(),
+              );
+            },
+          )..shuffle();
+          await insertDaysWithSessionsWithExercisesWithMovementAndSets(days);
+
+          // Act
+          final databaseDays = await db.getDaysByBlockId(blockId);
+
+          // Assert
+          for (final dayIndex in Iterable.generate(databaseDays.length - 1)) {
+            final day = databaseDays[dayIndex];
+            final nextDay = databaseDays[dayIndex + 1];
+            expect(day.order < nextDay.order, true);
+
+            // Check the sessions of each day are sorted by date then by id
+            for (final sessionIndex
+                in Iterable.generate(day.sessions.length - 1)) {
+              final session = day.sessions[sessionIndex];
+              final nextSession = day.sessions[sessionIndex + 1];
+              expect(
+                session.date.isBefore(nextSession.date) ||
+                    (session.date.isAtSameMomentAs(nextSession.date) &&
+                        session.id < nextSession.id),
+                true,
+              );
+
+              // Check the exercises of each session are sorted by order then by supersetOrder
+              for (final exerciseIndex
+                  in Iterable.generate(session.exercises.length - 1)) {
+                final exercise = session.exercises[exerciseIndex];
+                final nextExercise = session.exercises[exerciseIndex + 1];
+                expect(
+                  exercise.order < nextExercise.order ||
+                      (exercise.order == nextExercise.order &&
+                          exercise.supersetOrder < nextExercise.supersetOrder),
+                  true,
+                );
+
+                // Check the sets of each exercise are sorted by order
+                for (final setIndex
+                    in Iterable.generate(exercise.sets.length - 1)) {
+                  final set = exercise.sets[setIndex];
+                  final nextSet = exercise.sets[setIndex + 1];
+                  expect(set.order < nextSet.order, true);
+                }
+              }
+            }
+          }
+        },
+      );
+    },
+  );
 }

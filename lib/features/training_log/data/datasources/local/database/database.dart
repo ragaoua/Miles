@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -10,11 +11,17 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 import '../../../../domain/entities/block.dart';
 import '../../../../domain/entities/day.dart';
+import '../../../../domain/entities/exercise.dart';
+import '../../../../domain/entities/movement.dart';
 import '../../../../domain/entities/session.dart';
+import '../../../../domain/entities/exercise_set.dart';
 
 part '../dao/block_dao.dart';
 part '../dao/day_dao.dart';
+part '../dao/exercise_dao.dart';
+part '../dao/movement_dao.dart';
 part '../dao/session_dao.dart';
+part '../dao/exercise_set_dao.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
@@ -22,6 +29,9 @@ part 'database.g.dart';
     BlockDAO,
     DayDAO,
     SessionDAO,
+    ExerciseDAO,
+    MovementDAO,
+    ExerciseSetDAO,
   ],
 )
 class Database extends _$Database {
@@ -59,11 +69,11 @@ class Database extends _$Database {
     for (final row in rows) {
       final block = blockDAO.map(row.data, tablePrefix: "block");
 
+      final blockSessions = blockSessionsMap.putIfAbsent(block, () => []);
       if (row.data["session.id"] != null) {
-        final session = sessionDAO.map(row.data, tablePrefix: "session");
-        blockSessionsMap.putIfAbsent(block, () => []).add(session);
-      } else {
-        blockSessionsMap.putIfAbsent(block, () => []);
+        blockSessions.add(
+          sessionDAO.map(row.data, tablePrefix: "session"),
+        );
       }
     }
 
@@ -93,6 +103,109 @@ class Database extends _$Database {
 
         return blockId;
       }));
+
+  /// Retrieve a list of days for a given block
+  /// Days are sorted by order.
+  /// Each day's sessions are sorted by date then by id
+  /// Each session's exercises are sorted by order then by supersetOrder
+  /// Each exercise's sets are sorted by order
+  Future<
+          List<
+              DayWithSessions<
+                  SessionWithExercises<ExerciseWithMovementAndSets>>>>
+      getDaysByBlockId(int blockId) {
+    final query = select(dayDAO).join([
+      leftOuterJoin(
+        sessionDAO,
+        sessionDAO.dayId.equalsExp(dayDAO.id),
+      ),
+      leftOuterJoin(
+        exerciseDAO,
+        exerciseDAO.sessionId.equalsExp(sessionDAO.id),
+      ),
+      leftOuterJoin(
+        movementDAO,
+        movementDAO.id.equalsExp(exerciseDAO.movementId),
+      ),
+      leftOuterJoin(
+        exerciseSetDAO,
+        exerciseSetDAO.exerciseId.equalsExp(exerciseDAO.id),
+      ),
+    ]);
+    query.where(dayDAO.blockId.equals(blockId));
+    query.orderBy([
+      OrderingTerm(expression: dayDAO.order),
+      OrderingTerm(expression: sessionDAO.date),
+      OrderingTerm(expression: sessionDAO.id),
+      OrderingTerm(expression: exerciseDAO.order),
+      OrderingTerm(expression: exerciseDAO.supersetOrder),
+      OrderingTerm(expression: exerciseSetDAO.order),
+    ]);
+
+    return query
+        .get()
+        .then(_mapRowsToDaysWithSessionsWithExercisesWithMovementAndSets);
+  }
+
+  List<DayWithSessions<SessionWithExercises<ExerciseWithMovementAndSets>>>
+      _mapRowsToDaysWithSessionsWithExercisesWithMovementAndSets(rows) {
+    final Map<
+            Day,
+            Map<Session,
+                Map<Exercise, ({List<ExerciseSet> sets, Movement movement})>>>
+        daySessionsMap = {};
+    for (final row in rows) {
+      final day = row.readTable(dayDAO) as Day;
+      final dayMap = daySessionsMap.putIfAbsent(day, () => {});
+
+      final session = row.readTableOrNull(sessionDAO) as Session?;
+      if (session != null) {
+        final sessionMap = dayMap.putIfAbsent(session, () => {});
+
+        final exercise = row.readTableOrNull(exerciseDAO) as Exercise?;
+        if (exercise != null) {
+          final movement = row.readTable(movementDAO) as Movement;
+          final exerciseMap = sessionMap.putIfAbsent(
+            exercise,
+            () => (sets: [], movement: movement),
+          );
+
+          final set = row.readTableOrNull(exerciseSetDAO) as ExerciseSet?;
+          if (set != null) {
+            exerciseMap.sets.add(set);
+          }
+        }
+      }
+    }
+
+    return daySessionsMap.entries.map((entry) {
+      final day = entry.key;
+      return DayWithSessions(
+        id: day.id,
+        blockId: day.blockId,
+        order: day.order,
+        sessions: entry.value.entries.map((entry) {
+          final session = entry.key;
+          return SessionWithExercises(
+            id: session.id,
+            dayId: session.dayId,
+            date: session.date,
+            exercises: entry.value.entries.map((entry) {
+              final exercise = entry.key;
+              return ExerciseWithMovementAndSets(
+                id: exercise.id,
+                sessionId: exercise.sessionId,
+                order: exercise.order,
+                supersetOrder: exercise.supersetOrder,
+                movement: entry.value.movement,
+                sets: entry.value.sets,
+              );
+            }).toList(),
+          );
+        }).toList(),
+      );
+    }).toList();
+  }
 }
 
 LazyDatabase openConnection() => LazyDatabase(() async {

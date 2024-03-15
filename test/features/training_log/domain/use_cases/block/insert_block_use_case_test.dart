@@ -1,15 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:dartz_test/dartz_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/insert_block_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../core/mock_failure.dart';
 import '../../repository/mock_repository.dart';
-
-class MockFailure extends Failure {}
 
 class MockBlockNameValidator extends Mock implements BlockNameValidator {}
 

@@ -4,7 +4,7 @@ import 'package:miles/features/training_log/domain/repositories/repository.dart'
 import 'package:miles/features/training_log/domain/use_cases/block/delete_block_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../core/mock_repository_failure.dart';
+import '../../../../../core/mock_failure.dart';
 import '../../repository/mock_repository.dart';
 
 void main() {
@@ -18,38 +18,31 @@ void main() {
 
   const block = Block(id: 1, name: 'Block 1');
 
-  test(
-      'should delete the block from the repository',
-      () async {
-        // arrange
-        when(() => mockRepository.deleteBlock(block))
-            .thenAnswer((_) async => null);
+  test('should delete the block from the repository', () async {
+    // arrange
+    when(() => mockRepository.deleteBlock(block)).thenAnswer((_) async => null);
 
-        // act
-        await deleteBlock(block);
+    // act
+    await deleteBlock(block);
 
-        // assert
-        verify(() => mockRepository.deleteBlock(block));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // assert
+    verify(() => mockRepository.deleteBlock(block));
+    verifyNoMoreInteractions(mockRepository);
+  });
 
-  test(
-      "should propagate repository failure when updating a block",
-      () async {
-        final repositoryFailure = MockRepositoryFailure();
+  test("should propagate repository failure when updating a block", () async {
+    final repositoryFailure = MockFailure();
 
-        // arrange
-        when(() => mockRepository.deleteBlock(block))
-            .thenAnswer((_) async => repositoryFailure);
+    // arrange
+    when(() => mockRepository.deleteBlock(block))
+        .thenAnswer((_) async => repositoryFailure);
 
-        // act
-        final result = await deleteBlock(block);
+    // act
+    final result = await deleteBlock(block);
 
-        // assert
-        expect(result, repositoryFailure);
-        verify(() => mockRepository.deleteBlock(block));
-        verifyNoMoreInteractions(mockRepository);
-      }
-  );
+    // assert
+    expect(result, repositoryFailure);
+    verify(() => mockRepository.deleteBlock(block));
+    verifyNoMoreInteractions(mockRepository);
+  });
 }
