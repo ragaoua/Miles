@@ -300,7 +300,13 @@ void main() {
       }
 
       test(
-        "should return a list of days for a given block",
+        """
+        should return a list of days for a given block.
+        Days should be sorted by order.
+        Each day's sessions should be sorted by date then by id.
+        Each session's exercises should be sorted by order then by supersetOrder.
+        Each exercise's sets should sorted by order.
+        """,
         () async {
           // Arrange
           final random = Random();
@@ -335,8 +341,9 @@ void main() {
                           return ExerciseWithMovementAndSets(
                             id: exerciseId,
                             sessionId: sessionId,
-                            order: exerciseIndex + 1,
-                            supersetOrder: 1, // TODO: Adjust
+                            // Every pair of exercises is a superset
+                            order: (exerciseIndex ~/ 2) + 1,
+                            supersetOrder: (exerciseIndex % 2) + 1,
                             movement: Movement(
                               id: exerciseId,
                               name: "Example Movement $exerciseId",
@@ -368,6 +375,8 @@ void main() {
           for (final dayIndex in Iterable.generate(databaseDays.length - 1)) {
             final day = databaseDays[dayIndex];
             final nextDay = databaseDays[dayIndex + 1];
+
+            // Check the days are sorted by order
             expect(day.order < nextDay.order, true);
 
             // Check the sessions of each day are sorted by date then by id
