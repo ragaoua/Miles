@@ -32,4 +32,7 @@ class SessionWithExercises<T extends Exercise> extends Session {
     required super.date,
     required this.exercises,
   });
+
+  @override
+  List<Object?> get props => [super.props, exercises];
 }
