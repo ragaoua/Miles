@@ -9,18 +9,8 @@ class Movement extends Equatable {
 
   const Movement({
     this.id = defaultId,
-    this.name = defaultName
+    this.name = defaultName,
   });
-
-  Movement copy({
-    int? id,
-    String? name
-  }) {
-    return Movement(
-      id: id ?? this.id,
-      name: name ?? this.name
-    );
-  }
 
   @override
   List<Object?> get props => [id, name];

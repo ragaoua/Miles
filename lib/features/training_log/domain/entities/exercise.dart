@@ -27,23 +27,6 @@ class Exercise extends Equatable {
     this.ratingType = defaultRatingType,
   });
 
-  Exercise copy({
-    int? id,
-    int? sessionId,
-    int? order,
-    int? supersetOrder,
-    int? movementId,
-    RatingType? ratingType,
-  }) =>
-      Exercise(
-        id: id ?? this.id,
-        sessionId: sessionId ?? this.sessionId,
-        order: order ?? this.order,
-        supersetOrder: supersetOrder ?? this.supersetOrder,
-        movementId: movementId ?? this.movementId,
-        ratingType: ratingType ?? this.ratingType,
-      );
-
   @override
   List<Object?> get props =>
       [id, sessionId, order, supersetOrder, movementId, ratingType];
@@ -57,44 +40,18 @@ class ExerciseWithMovementAndSets extends Exercise {
   final List<ExerciseSet> sets;
 
   const ExerciseWithMovementAndSets({
-    id = Exercise.defaultId,
-    sessionId = Exercise.defaultSessionId,
-    order = Exercise.defaultOrder,
-    supersetOrder = Exercise.defaultSupersetOrder,
-    movementId = Exercise.defaultMovementId,
-    ratingType = Exercise.defaultRatingType,
+    super.id = Exercise.defaultId,
+    super.sessionId = Exercise.defaultSessionId,
+    super.order = Exercise.defaultOrder,
+    super.supersetOrder = Exercise.defaultSupersetOrder,
+    super.movementId = Exercise.defaultMovementId,
+    super.ratingType = Exercise.defaultRatingType,
     required this.movement,
     required this.sets,
-  }) : super(
-          id: id,
-          sessionId: sessionId,
-          order: order,
-          supersetOrder: supersetOrder,
-          movementId: movementId,
-          ratingType: ratingType,
-        );
+  });
 
   @override
-  ExerciseWithMovementAndSets copy({
-    int? id,
-    int? sessionId,
-    int? order,
-    int? supersetOrder,
-    int? movementId,
-    RatingType? ratingType,
-    Movement? movement,
-    List<ExerciseSet>? sets,
-  }) =>
-      ExerciseWithMovementAndSets(
-        id: id ?? this.id,
-        sessionId: sessionId ?? this.sessionId,
-        order: order ?? this.order,
-        supersetOrder: supersetOrder ?? this.supersetOrder,
-        movementId: movementId ?? this.movementId,
-        ratingType: ratingType ?? this.ratingType,
-        movement: movement ?? this.movement,
-        sets: sets ?? this.sets,
-      );
+  List<Object?> get props => [...super.props, movement, sets];
 }
 
 enum RatingType { rpe, rir }

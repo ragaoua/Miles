@@ -26,21 +26,24 @@ class BlockWithDays<T extends Day> extends Block {
   final List<T> days;
 
   const BlockWithDays({
-    id = Block.defaultId,
-    name = Block.defaultName,
+    super.id = Block.defaultId,
+    super.name = Block.defaultName,
     required this.days,
-  }) : super(id: id, name: name);
+  });
+
+  @override
+  List<Object?> get props => [...super.props, days];
 }
 
 class BlockWithSessions<T extends Session> extends Block {
   final List<T> sessions;
 
   const BlockWithSessions({
-    id = Block.defaultId,
-    name = Block.defaultName,
+    super.id = Block.defaultId,
+    super.name = Block.defaultName,
     required this.sessions,
-  }) : super(id: id, name: name);
+  });
 
   @override
-  List<Object?> get props => [id, name, sessions];
+  List<Object?> get props => [...super.props, sessions];
 }

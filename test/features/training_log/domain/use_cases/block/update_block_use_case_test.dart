@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:miles/core/failure.dart';
 import 'package:miles/features/training_log/domain/entities/block.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';

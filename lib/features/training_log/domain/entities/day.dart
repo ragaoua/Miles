@@ -13,18 +13,8 @@ class Day extends Equatable {
   const Day({
     this.id = defaultId,
     this.blockId = defaultBlockId,
-    this.order = defaultOrder
+    this.order = defaultOrder,
   });
-
-  Day copy({
-    int? id,
-    int? blockId,
-    int? order
-  }) => Day(
-    id: id ?? this.id,
-    blockId: blockId ?? this.blockId,
-    order: order ?? this.order
-  );
 
   @override
   List<Object?> get props => [id, blockId, order];
@@ -37,22 +27,12 @@ class DayWithSessions<T extends Session> extends Day {
   final List<T> sessions;
 
   const DayWithSessions({
-    id = Day.defaultId,
-    blockId = Day.defaultBlockId,
-    order = Day.defaultOrder,
-    required this.sessions
-  }): super(id: id, blockId: blockId, order: order);
+    super.id = Day.defaultId,
+    super.blockId = Day.defaultBlockId,
+    super.order = Day.defaultOrder,
+    required this.sessions,
+  });
 
   @override
-  DayWithSessions<T> copy({
-    int? id,
-    int? blockId,
-    int? order,
-    List<T>? sessions
-  }) => DayWithSessions(
-    id: id ?? this.id,
-    blockId: blockId ?? this.blockId,
-    order: order ?? this.order,
-    sessions: sessions ?? this.sessions
-  );
+  List<Object?> get props => [...super.props, sessions];
 }
