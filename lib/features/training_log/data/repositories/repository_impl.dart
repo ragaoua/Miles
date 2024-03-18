@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:miles/features/training_log/data/datasources/remote/api/api.dart';
 import 'package:miles/features/training_log/domain/entities/day.dart';
 import 'package:miles/features/training_log/domain/entities/exercise.dart';
 import 'package:miles/features/training_log/domain/entities/session.dart';
@@ -10,8 +11,9 @@ import '../datasources/local/database/database.dart';
 
 class RepositoryImpl implements Repository {
   final Database db;
+  final Api api;
 
-  RepositoryImpl({required this.db});
+  RepositoryImpl({required this.db, required this.api});
 
   @override
   Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays) {

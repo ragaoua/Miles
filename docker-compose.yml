@@ -18,7 +18,7 @@ services:
       - "3000:3000"
     environment:
       PGRST_DB_URI: postgres://authenticator:authpass@db:5432/scarlet
-      PGRST_DB_SCHEMA: scarlet
+      PGRST_DB_SCHEMA: api
       PGRST_DB_ANON_ROLE: anonymous
       PGRST_OPENAPI_SERVER_PROXY_URI: http://127.0.0.1:3000
     depends_on:

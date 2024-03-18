@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:miles/features/training_log/data/datasources/remote/api/api.dart';
 import 'package:miles/features/training_log/domain/repositories/repository.dart';
 import 'package:miles/features/training_log/domain/use_cases/block/helpers/block_name_validator.dart';
 
@@ -20,11 +22,14 @@ void init() {
     () => BlockNameValidator(repository: sl()),
   );
 
-  // Repository and database
+  // Repository, database and API
   sl.registerLazySingleton<Repository>(
-    () => RepositoryImpl(db: sl()),
+    () => RepositoryImpl(db: sl(), api: sl()),
   );
   sl.registerLazySingleton<Database>(
     () => Database(openConnection()),
+  );
+  sl.registerLazySingleton(
+    () => Api(Dio(BaseOptions(baseUrl: "http://127.0.0.1:3000/"))),
   );
 }
