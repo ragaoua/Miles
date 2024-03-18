@@ -77,15 +77,7 @@ class Database extends _$Database {
       }
     }
 
-    return blockSessionsMap.entries.map((entries) {
-      final block = entries.key;
-      final sessions = entries.value;
-      return BlockWithSessions(
-        id: block.id,
-        name: block.name,
-        sessions: sessions,
-      );
-    }).toList();
+    return BlockWithSessions.fromMapToList(blockSessionsMap);
   }
 
   Future<Block?> getBlockByName(String name) =>

@@ -46,4 +46,18 @@ class BlockWithSessions<T extends Session> extends Block {
 
   @override
   List<Object?> get props => [...super.props, sessions];
+
+  static List<BlockWithSessions> fromMapToList(
+    Map<Block, List<Session>> map,
+  ) {
+    return map.entries.map((entries) {
+      final block = entries.key;
+      final sessions = entries.value;
+      return BlockWithSessions(
+        id: block.id,
+        name: block.name,
+        sessions: sessions,
+      );
+    }).toList();
+  }
 }
