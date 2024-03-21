@@ -35,7 +35,7 @@ part 'database.g.dart';
   ],
 )
 class Database extends _$Database {
-  Database(QueryExecutor e) : super(e);
+  Database(super.e);
 
   @override
   int get schemaVersion => 1;
@@ -92,7 +92,7 @@ class Database extends _$Database {
         int blockId = await into(blockDAO).insert(BlockDAOCompanion(
           name: Value(name),
         ));
-        
+
         List<Day> days = [];
         for (var dayOrder = 1; dayOrder <= nbDays; dayOrder++) {
           int dayId = await into(dayDAO).insert(
