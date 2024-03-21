@@ -6,8 +6,13 @@ class DayDAO extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get blockId => integer().references(BlockDAO, #id)();
   IntColumn get order => integer()();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
-  @override String get tableName => 'day';
+  @override
+  String get tableName => 'day';
 
-  @override List<Set<Column>> get uniqueKeys => [ {blockId, order} ];
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {blockId, order}
+      ];
 }

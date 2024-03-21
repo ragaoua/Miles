@@ -20,17 +20,29 @@ class RepositoryImpl implements Repository {
     String name,
     int nbDays,
   ) async {
+    // Persist data locally
+    BlockWithDays insertedBlock;
     try {
-      final block = await db.insertBlockAndDays(name, nbDays);
-
-      // TODO - handle cases where :
-      // - The API is not reachable
-      // - the API call fails
-      api.insertBlockWithDays(BlockWithDaysDTO.fromEntity(block));
-      return Right(block.id);
+      insertedBlock = await db.insertBlockAndDays(name, nbDays);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
+
+    // Persist data to the API if reachable
+    // Then update the local db to mark data as synced
+    // TODO : check if the API is reachable
+    api.insertBlockWithDays(BlockWithDaysDTO.fromEntity(insertedBlock)).then(
+      (_) async {
+        await db.syncBlock(insertedBlock.id);
+        for (final day in insertedBlock.days) {
+          await db.syncDay(day.id);
+        }
+      },
+    ).catchError((e) {
+      // TODO : should we do anything here ?
+    });
+
+    return Right(insertedBlock.id);
   }
 
   @override

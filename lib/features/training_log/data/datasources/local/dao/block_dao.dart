@@ -5,8 +5,13 @@ class BlockDAO extends Table {
   // Drift recognizes this column as the primary key
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text().withLength(min: 1)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
-  @override String get tableName => 'block';
+  @override
+  String get tableName => 'block';
 
-  @override List<Set<Column>> get uniqueKeys => [ {name} ];
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {name}
+      ];
 }

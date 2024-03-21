@@ -40,6 +40,16 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 1;
 
+  Future<void> syncBlock(int blockId) async {
+    await (update(blockDAO)..where((b) => b.id.equals(blockId)))
+        .write(const BlockDAOCompanion(isSynced: Value(true)));
+  }
+
+  Future<void> syncDay(int dayId) async {
+    await (update(dayDAO)..where((b) => b.id.equals(dayId)))
+        .write(const DayDAOCompanion(isSynced: Value(true)));
+  }
+
   /// Get all blocks with their sessions
   /// The block are sorted by latest session descending then by id descending.
   /// For each block, sessions are sorted by date then by id.
