@@ -87,17 +87,22 @@ class Database extends _$Database {
       (select(blockDAO)..where((block) => block.name.equals(name)))
           .getSingleOrNull();
 
-Future<int> insertBlockAndDays(String name, int nbDays) => transaction(() =>
-      into(blockDAO)
-          .insert(BlockDAOCompanion(name: Value(name)))
-          .then((blockId) {
+  Future<BlockWithDays> insertBlockAndDays(String name, int nbDays) =>
+      transaction(() async {
+        int blockId = await into(blockDAO).insert(BlockDAOCompanion(
+          name: Value(name),
+        ));
+        
+        List<Day> days = [];
         for (var dayOrder = 1; dayOrder <= nbDays; dayOrder++) {
-          into(dayDAO).insert(
-              DayDAOCompanion(blockId: Value(blockId), order: Value(dayOrder)));
+          int dayId = await into(dayDAO).insert(
+            DayDAOCompanion(blockId: Value(blockId), order: Value(dayOrder)),
+          );
+          days.add(Day(id: dayId, blockId: blockId, order: dayOrder));
         }
 
-        return blockId;
-      }));
+        return BlockWithDays(id: blockId, name: name, days: days);
+      });
 
   /// Retrieve a list of days for a given block
   /// Days are sorted by order.

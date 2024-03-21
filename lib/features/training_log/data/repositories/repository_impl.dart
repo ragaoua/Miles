@@ -16,9 +16,18 @@ class RepositoryImpl implements Repository {
   RepositoryImpl({required this.db, required this.api});
 
   @override
-  Future<Either<Failure, int>> insertBlockAndDays(String name, int nbDays) {
+  Future<Either<Failure, int>> insertBlockAndDays(
+    String name,
+    int nbDays,
+  ) async {
     try {
-      return db.insertBlockAndDays(name, nbDays).then(Right.new);
+      final block = await db.insertBlockAndDays(name, nbDays);
+
+      // TODO - handle cases where :
+      // - The API is not reachable
+      // - the API call fails
+      api.insertBlockWithDays(BlockWithDaysDTO.fromEntity(block));
+      return Right(block.id);
     } catch (e) {
       return Future.value(Left(DatabaseFailure(e.toString())));
     }
@@ -42,6 +51,9 @@ class RepositoryImpl implements Repository {
     throw UnimplementedError();
   }
 
+  /// Get all blocks with their sessions
+  /// The block are sorted by latest session descending then by id descending.
+  /// For each block, sessions are sorted by date then by id.
   @override
   Stream<Either<Failure, List<BlockWithSessions>>> getAllBlocks() {
     try {
