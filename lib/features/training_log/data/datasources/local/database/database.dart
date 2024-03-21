@@ -40,6 +40,9 @@ class Database extends _$Database {
   @override
   int get schemaVersion => 1;
 
+  /// Get all blocks with their sessions
+  /// The block are sorted by latest session descending then by id descending.
+  /// For each block, sessions are sorted by date then by id.
   Stream<List<BlockWithSessions>> getAllBlocks() {
     return customSelect(
       """
@@ -84,7 +87,7 @@ class Database extends _$Database {
       (select(blockDAO)..where((block) => block.name.equals(name)))
           .getSingleOrNull();
 
-  Future<int> insertBlockAndDays(String name, int nbDays) => transaction(() =>
+Future<int> insertBlockAndDays(String name, int nbDays) => transaction(() =>
       into(blockDAO)
           .insert(BlockDAOCompanion(name: Value(name)))
           .then((blockId) {
