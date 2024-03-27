@@ -14,3 +14,19 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Cheat sheet
+
+List all emulator devices :
+
+~~~
+adb devices
+~~~
+
+Open a shell in the device and access its sqlite database :
+
+~~~
+adb -s emulator-5554 shell
+run-as com.ragaoua.miles sqlite3 /data/user/0/com.ragaoua.miles/app_flutter/db.sqlite
+<run query>
+~~~
